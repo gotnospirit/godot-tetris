@@ -6,7 +6,7 @@ A Godot 3.4 project
   - [X] Main menu
   - [X] Game over
   - [ ] Playing
-  - [ ] Pause
+  - [X] Pause
 - [ ] Gameplay
   - [ ] Choose next tetromino
   - [ ] Player control
