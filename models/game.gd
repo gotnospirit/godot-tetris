@@ -12,9 +12,11 @@ enum Status { INIT, PLAYING, GAME_OVER }
 var status:int
 var cells:Array = []
 var next:Tetromino = null
+var current:Tetromino = null
 
 signal status_updated
 signal next_selected
+signal spawned
 
 
 func _init():
@@ -34,6 +36,19 @@ func select_next() -> void:
 	next = Tetromino.new(type, Tetromino.Rotation.ZERO, 0, 0)
 
 	emit_signal("next_selected", next)
+
+
+func spawn() -> void:
+	if not next:
+		push_error("Next tetromino not selected yet")
+		return
+
+	current = next
+	select_next()
+	current.shrink()
+	current.cell_x = Width / 2
+	current.cell_y = 0 - current.height + 1
+	emit_signal("spawned", current)
 
 
 func get_size() -> Vector2:

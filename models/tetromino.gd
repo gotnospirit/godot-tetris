@@ -35,6 +35,8 @@ var rotation:int = -1
 var cell_x:int = -1
 var cell_y:int = -1
 var color:Color
+var width:int = -1
+var height:int = -1
 
 
 func _init(tp:int, r:int, x:int, y:int):
@@ -43,8 +45,32 @@ func _init(tp:int, r:int, x:int, y:int):
 	cell_x = x
 	cell_y = y
 	color = Colors[tp]
+	width = Width
+	height = Width
+	desc = GetRotatedDesc(Types[tp], r)
 
-	desc = get_rotated_desc(Types[tp], r)
+
+func shrink() -> void:
+	# locate the empty lines
+	var line_to_remove:Array = _locate_empty(Width, true)
+
+	var h:int = Width - line_to_remove.size()
+
+	# locate the empty columns
+	var column_to_remove:Array = _locate_empty(h, false)
+
+	# mark the chars we want to remove
+	for y in line_to_remove:
+		for x in range(Width):
+			desc[y * Width + x] = "R"
+
+	for x in column_to_remove:
+		for y in range(Width):
+			desc[y * Width + x] = "R"
+
+	desc = desc.split("R", false).join("")
+	width = Width - column_to_remove.size()
+	height = h
 
 
 func get_length() -> int:
@@ -55,40 +81,61 @@ func is_empty(idx:int) -> bool:
 	return " " == desc[idx]
 
 
-static func debug() -> void:
+func pretty_print() -> void:
+	PrettyPrint(desc, width)
+
+
+func _locate_empty(max_y:int, line_scan:bool) -> Array:
+	var ret:Array = []
+	for x in range(Width):
+		var empty:bool = true
+		for y in range(max_y):
+			var idx = x * Width + y if line_scan else y * Width + x
+			if not is_empty(idx):
+				empty = false
+				break
+
+		if not empty:
+			continue
+
+		ret.append(x)
+	return ret
+
+
+static func Debug() -> void:
 	for t in range(Types.size()):
 		for r in Rotation:
 			print(str(90 * Rotation[r]) + " deg")
-			var d = get_rotated_desc(Types[t], Rotation[r])
-			pretty_print(d)
+			var d = GetRotatedDesc(Types[t], Rotation[r])
+			PrettyPrint(d, Width)
 		print("------------")
 
 
-static func pretty_print(s:String) -> void:
+static func PrettyPrint(s:String, w:int) -> void:
 	var tmp:String = ""
 
-	print("+----+")
+	print("+" + "-".repeat(w) + "+")
 	for ch in s:
 		tmp += ch
-		if tmp.length() >= Width:
+		if tmp.length() >= w:
 			print("|" + tmp + "|")
 			tmp = ""
-	print("+----+")
+	print("+" + "-".repeat(w) + "+")
 
 
-static func get_rotated_desc(s:String, r:int) -> String:
+static func GetRotatedDesc(s:String, r:int) -> String:
 	if r == Rotation.ZERO:
 		# unsure we get a copy of the original
 		return s.strip_escapes()
 
 	var ret:String = " ".repeat(s.length())
 	for idx in range(s.length()):
-		var ri:int = get_index(idx % Width, int(idx / Width), r)
+		var ri:int = GetIndex(idx % Width, int(idx / Width), r)
 		ret[ri] = s[idx]
 	return ret
 
 
-static func get_index(x:int, y:int, r:int) -> int:
+static func GetIndex(x:int, y:int, r:int) -> int:
 	var ret:int = 0
 	match r:
 		Rotation.ZERO:

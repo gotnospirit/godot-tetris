@@ -19,14 +19,15 @@ func _enter_tree():
 		if Game.Cells.BORDER == cell:
 			var x:int = idx % w
 			var y:int = idx / w
-			var node = UtilsDraw.new_tetromino(x, y, TileSize, BorderColor)
-			$Borders.add_child(node)
+			var node = UtilsTetromino.DrawCell(x, y, TileSize, BorderColor)
+			$Grid/Borders.add_child(node)
 		idx += 1
 
 	_layout(get_viewport_rect().size)
 
 	# connect events
 	model.connect("next_selected", self, "_on_next_tetromino_selected")
+	model.connect("spawned", self, "_on_tetromino_spawned")
 
 
 func _ready():
@@ -36,6 +37,7 @@ func _ready():
 
 func _exit_tree():
 	model.disconnect("next_selected", self, "_on_next_tetromino_selected")
+	model.disconnect("spawned", self, "_on_tetromino_spawned")
 
 
 func _input(_event):
@@ -46,25 +48,28 @@ func _input(_event):
 
 
 func _layout(size:Vector2) -> void:
+	var grid_node:Node2D = $Grid
+	var status_node:Node2D = $Status
+
 	var grid_size:Vector2 = model.get_size()
 
 	# status panel
-	var status_panel_size:Vector2 = $Status.layout(Vector2(status_width, 0))
+	var status_panel_size:Vector2 = status_node.layout(Vector2(status_width, 0))
 
 	# grid
 	var grid_width:int = grid_size.x * TileSize
 	var game_width:int = grid_width + TileSize + status_panel_size.x / 2
 	var viewport_width:int = size.x
 	var border_x:int = viewport_width / 2 - game_width / 2
-	$Borders.position.x = border_x
+	grid_node.position.x = border_x
 
 	var grid_height:int = grid_size.y * TileSize
 	var viewport_height:int = size.y
-	$Borders.position.y = viewport_height - grid_height
+	grid_node.position.y = viewport_height - grid_height
 
 	# status panel position
-	$Status.position.x = $Borders.position.x + grid_width + TileSize
-	$Status.position.y = $Borders.position.y
+	status_node.position.x = grid_node.position.x + grid_width + TileSize
+	status_node.position.y = grid_node.position.y
 
 
 func _on_screen_resized() -> Vector2:
@@ -80,3 +85,13 @@ func _on_pause_exit() -> void:
 
 func _on_next_tetromino_selected(t:Tetromino) -> void:
 	$Status.set_next(t)
+
+
+func _on_tetromino_spawned(t:Tetromino) -> void:
+	var parent:Node2D = $Grid/Current
+	for node in parent.get_children():
+		node.queue_free()
+		parent.remove_child(node)
+
+	UtilsTetromino.Draw(t, parent, TileSize)
+	parent.position = Vector2(t.cell_x * TileSize, t.cell_y * TileSize)

@@ -9,7 +9,7 @@ A Godot 3.4 project
   - [X] Pause
 - [ ] Gameplay
   - [X] Choose next tetromino
-  - [ ] Spawn tetromino
+  - [X] Spawn tetromino
   - [ ] Player control
     - [ ] Move left/right
     - [ ] Rotate

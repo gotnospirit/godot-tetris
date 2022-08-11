@@ -12,13 +12,7 @@ func set_next(t:Tetromino) -> void:
 		node.queue_free()
 		$Preview.remove_child(node)
 
-	for idx in range(t.get_length()):
-		if t.is_empty(idx):
-			continue
-		var x:int = idx % Tetromino.Width
-		var y:int = idx / Tetromino.Width
-		var node = UtilsDraw.new_tetromino(x, y, TileSize, t.color)
-		$Preview.add_child(node)
+	UtilsTetromino.Draw(t, $Preview, TileSize)
 
 
 func layout(min_size:Vector2) -> Vector2:

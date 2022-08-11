@@ -35,9 +35,9 @@ _global_script_classes=[ {
 "path": "res://models/tetromino.gd"
 }, {
 "base": "Reference",
-"class": "UtilsDraw",
+"class": "UtilsTetromino",
 "language": "GDScript",
-"path": "res://utils/draw.gd"
+"path": "res://utils/tetromino.gd"
 } ]
 _global_script_class_icons={
 "FSM_State": "",
@@ -45,7 +45,7 @@ _global_script_class_icons={
 "Game": "",
 "Screen": "",
 "Tetromino": "",
-"UtilsDraw": ""
+"UtilsTetromino": ""
 }
 
 [application]
