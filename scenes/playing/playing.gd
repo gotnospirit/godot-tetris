@@ -4,6 +4,7 @@ const showup_duration:float = 1.0
 const status_width:int = 150
 
 const TileSize:int = 32
+const BorderColor:Color = Color8(128, 128, 128, 140)
 
 
 func _enter_tree():
@@ -18,15 +19,23 @@ func _enter_tree():
 		if Game.Cells.BORDER == cell:
 			var x:int = idx % w
 			var y:int = idx / w
-			var node = _create_block(x, y, TileSize, Color(255, 0, 0, 1))
+			var node = UtilsDraw.new_tetromino(x, y, TileSize, BorderColor)
 			$Borders.add_child(node)
 		idx += 1
 
 	_layout(get_viewport_rect().size)
 
+	# connect events
+	model.connect("next_selected", self, "_on_next_tetromino_selected")
+
 
 func _ready():
 	fade_out(showup_duration)
+	model.select_next()
+
+
+func _exit_tree():
+	model.disconnect("next_selected", self, "_on_next_tetromino_selected")
 
 
 func _input(_event):
@@ -34,15 +43,6 @@ func _input(_event):
 		$Pause.show()
 		# will resume in _on_pause_exit
 		get_tree().paused = true
-
-
-func _create_block(x:int, y:int, tile_size:int, color:Color) -> ColorRect:
-	var pos:Vector2 = Vector2(x * tile_size, y * tile_size)
-	var node:ColorRect = ColorRect.new()
-	node.color = color
-	node.rect_position = pos
-	node.rect_min_size = Vector2(tile_size, tile_size)
-	return node
 
 
 func _layout(size:Vector2) -> void:
@@ -76,3 +76,7 @@ func _on_screen_resized() -> Vector2:
 func _on_pause_exit() -> void:
 	get_tree().paused = false
 	$Pause.hide()
+
+
+func _on_next_tetromino_selected(t:Tetromino) -> void:
+	$Status.set_next(t)

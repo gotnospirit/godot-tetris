@@ -11,8 +11,10 @@ enum Status { INIT, PLAYING, GAME_OVER }
 
 var status:int
 var cells:Array = []
+var next:Tetromino = null
 
 signal status_updated
+signal next_selected
 
 
 func _init():
@@ -22,6 +24,16 @@ func _init():
 	for i in range(Width * Height):
 		var is_border:bool = (i % Width == 0) or (i % Width == Width - 1) or (int(i / Width) == Height - 1)
 		cells[i] = Cells.BORDER if is_border else Cells.EMPTY
+
+
+func select_next() -> void:
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+	var type:int = rng.randi_range(0, Tetromino.Types.size() - 1)
+
+	next = Tetromino.new(type, Tetromino.Rotation.ZERO, 0, 0)
+
+	emit_signal("next_selected", next)
 
 
 func get_size() -> Vector2:

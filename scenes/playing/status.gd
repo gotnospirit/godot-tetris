@@ -2,24 +2,45 @@ extends Node2D
 
 const TileSize:int = 32
 
-const FrameMargin:int = 10
+const FramePadding:int = 10
 const BorderWidth:int = 2
 const BorderRadius:int = 10
 
 
-func layout(min_size:Vector2) -> Vector2:
-	var score_label:Vector2 = $Score.rect_size
-	var score_count:Vector2 = $NbScore.rect_size
+func set_next(t:Tetromino) -> void:
+	for node in $Preview.get_children():
+		node.queue_free()
+		$Preview.remove_child(node)
 
-	# next tetromino
+	for idx in range(t.get_length()):
+		if t.is_empty(idx):
+			continue
+		var x:int = idx % Tetromino.Width
+		var y:int = idx / Tetromino.Width
+		var node = UtilsDraw.new_tetromino(x, y, TileSize, t.color)
+		$Preview.add_child(node)
+
+
+func layout(min_size:Vector2) -> Vector2:
+	# next tetromino preview
 	var preview_width:int = Tetromino.Width * TileSize
 	var preview_height:int = Tetromino.Width * TileSize
 
+	var score_label:Vector2 = $Score/Label.rect_size
+	var score_count:Vector2 = $Score/Count.rect_size
+	var score_width:int = score_label.x + FramePadding + score_count.x
+	var score_height:int = max(score_label.y, score_count.y)
+
+	var level_label:Vector2 = $Level/Label.rect_size
+	var level_count:Vector2 = $Level/Count.rect_size
+	var level_width:int = level_label.x + FramePadding + level_count.x
+	var level_height:int = max(level_label.y, level_count.y)
+
 	# frame size
-	var frame_width:int = score_label.x + score_count.x + FrameMargin * 3
-	var frame_height:int = preview_height + max(score_label.y, score_count.y) + FrameMargin * 3
+	var frame_width:int = max(preview_width, max(score_width, level_width)) + FramePadding * 2
+	var frame_height:int = preview_height + score_height + level_height + FramePadding * 4
 	$Frame.rect_size = Vector2(
-		max(max(frame_width, preview_width), min_size.x),
+		max(frame_width, min_size.x),
 		max(frame_height, min_size.y)
 	)
 
@@ -37,13 +58,16 @@ func layout(min_size:Vector2) -> Vector2:
 	style.corner_radius_bottom_left = BorderRadius
 	style.corner_radius_bottom_right = BorderRadius
 
-	# children position
-	$Previous.position.x = FrameMargin
-	$Previous.position.y = FrameMargin
-	$Score.rect_position.x = FrameMargin
-	$Score.rect_position.y = FrameMargin * 2 + preview_height
-	# we align the score count to the right
-	$NbScore.rect_position.x = $Frame.rect_size.x - FrameMargin - score_count.x
-	$NbScore.rect_position.y = FrameMargin * 2 + preview_height
+	# align rows
+	$Preview.position.x = FramePadding
+	$Preview.position.y = FramePadding
+	$Score.position.y = $Preview.position.y + FramePadding + preview_height
+	$Level.position.y = $Score.position.y + FramePadding + score_height
+
+	# align the texts
+	$Score/Label.rect_position.x = FramePadding
+	$Score/Count.rect_position.x = $Frame.rect_size.x - FramePadding - score_count.x
+	$Level/Label.rect_position.x = FramePadding
+	$Level/Count.rect_position.x = $Frame.rect_size.x - FramePadding - level_count.x
 
 	return $Frame.rect_size

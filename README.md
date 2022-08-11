@@ -8,7 +8,8 @@ A Godot 3.4 project
   - [ ] Playing
   - [X] Pause
 - [ ] Gameplay
-  - [ ] Choose next tetromino
+  - [X] Choose next tetromino
+  - [ ] Spawn tetromino
   - [ ] Player control
     - [ ] Move left/right
     - [ ] Rotate
