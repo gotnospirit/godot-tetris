@@ -52,11 +52,28 @@ func spawn() -> void:
 	emit_signal("spawned", current)
 
 
+func move_left() -> void:
+	_move(Vector2.LEFT)
+
+
+func move_right() -> void:
+	_move(Vector2.RIGHT)
+
+
 func falldown() -> void:
+	_move(Vector2.DOWN)
+
+
+func _move(dir:Vector2) -> void:
 	if current:
-		if not detect_collision(current, Vector2.DOWN):
+		# stick inside the horizontal borders
+		var new_pos:Vector2 = current.pos + dir
+		if new_pos.x < 1 or new_pos.x >= Width - 2:
+			return
+
+		if not detect_collision(current, dir):
 			var old_y:int = current.pos.y
-			current.pos += Vector2.DOWN
+			current.pos += dir
 			emit_signal("moved", current, old_y)
 		else:
 			emit_signal("collision")

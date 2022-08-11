@@ -50,6 +50,12 @@ func _input(_event):
 	if Input.is_action_just_released("falldown"):
 		model.falldown()
 
+	if Input.is_action_just_released("move_left"):
+		model.move_left()
+
+	if Input.is_action_just_released("move_right"):
+		model.move_right()
+
 
 func _layout(size:Vector2) -> void:
 	var grid_node:Node2D = $Grid

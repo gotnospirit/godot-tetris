@@ -11,7 +11,7 @@ A Godot 3.4 project
   - [X] Choose next tetromino
   - [X] Spawn tetromino
   - [ ] Player control
-    - [ ] Move left/right
+    - [X] Move left/right
     - [ ] Rotate
     - [X] Falldown
   - [ ] Automatic falldown
@@ -26,3 +26,4 @@ A Godot 3.4 project
 
 # Credits
 - [Tetris icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/tetris)
+- Collision detection inspired by [Javidx9](https://www.youtube.com/watch?v=8OK8_tHeCIA)
