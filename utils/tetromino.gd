@@ -1,6 +1,29 @@
 class_name UtilsTetromino
 
 
+static func Move(t:Tetromino, parent:Node2D, old_y:int) -> void:
+	if old_y >= 0 and t.pos.y == old_y:
+		return
+
+	var node_idx:int = 0
+	for idx in range(t.get_length()):
+		if t.is_empty(idx):
+			continue
+
+		var cell_y:int = (idx / t.width) + t.pos.y
+		# not visible yet
+		if cell_y < 0:
+			node_idx += 1
+			continue
+		# already visible
+		elif cell_y > 0:
+			break
+
+		# remove transparency
+		parent.get_child(node_idx).modulate.a = 1
+		node_idx += 1
+
+
 static func Draw(t:Tetromino, parent:Node2D, tile_size:int) -> void:
 	for idx in range(t.get_length()):
 		if t.is_empty(idx):
@@ -8,7 +31,7 @@ static func Draw(t:Tetromino, parent:Node2D, tile_size:int) -> void:
 
 		var x:int = idx % t.width
 		var y:int = idx / t.width
-		var node = DrawCell(x, y, tile_size, t.color, y + t.cell_y < 0)
+		var node = DrawCell(x, y, tile_size, t.color, y + t.pos.y < 0)
 		parent.add_child(node)
 
 

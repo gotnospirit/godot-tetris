@@ -17,6 +17,8 @@ var current:Tetromino = null
 signal status_updated
 signal next_selected
 signal spawned
+signal moved
+signal collision
 
 
 func _init():
@@ -33,7 +35,7 @@ func select_next() -> void:
 	rng.randomize()
 	var type:int = rng.randi_range(0, Tetromino.Types.size() - 1)
 
-	next = Tetromino.new(type, Tetromino.Rotation.ZERO, 0, 0)
+	next = Tetromino.new(type, Tetromino.Rotation.ZERO)
 
 	emit_signal("next_selected", next)
 
@@ -46,9 +48,18 @@ func spawn() -> void:
 	current = next
 	select_next()
 	current.shrink()
-	current.cell_x = Width / 2
-	current.cell_y = 0 - current.height + 1
+	current.pos = Vector2(Width / 2, -current.height)
 	emit_signal("spawned", current)
+
+
+func falldown() -> void:
+	if current:
+		if not detect_collision(current, Vector2.DOWN):
+			var old_y:int = current.pos.y
+			current.pos += Vector2.DOWN
+			emit_signal("moved", current, old_y)
+		else:
+			emit_signal("collision")
 
 
 func get_size() -> Vector2:
@@ -59,6 +70,27 @@ func set_status(new_status:int) -> void:
 	if new_status != status:
 		status = new_status
 		emit_signal("status_updated", new_status)
+
+
+func detect_collision(t:Tetromino, offset:Vector2) -> bool:
+	var cell_x:int = t.pos.x + offset.x
+	var cell_y:int = t.pos.y + offset.y
+
+	for idx in range(t.get_length()):
+		var px:int = idx % t.width
+
+		# We only evaluate the cells who are inside the grid's view
+		if cell_x + px >= 0 and cell_x + px < Width:
+			var py:int = idx / t.width
+
+			if cell_y + py >= 0 and cell_y + py < Height:
+				# Translate into grid index
+				var fi:int = (cell_y + py) * Width + (cell_x + px)
+
+				if not t.is_empty(idx) and cells[fi] != Cells.EMPTY:
+					return true
+
+	return false
 
 
 func pretty_print(title:String) -> void:

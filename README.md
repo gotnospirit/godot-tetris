@@ -13,9 +13,9 @@ A Godot 3.4 project
   - [ ] Player control
     - [ ] Move left/right
     - [ ] Rotate
-    - [ ] Falldown
+    - [X] Falldown
   - [ ] Automatic falldown
-  - [ ] Collision
+  - [X] Collision
   - [ ] Remove completed lines
   - [ ] Compute score
   - [ ] Increase speed

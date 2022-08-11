@@ -28,16 +28,17 @@ func _enter_tree():
 	# connect events
 	model.connect("next_selected", self, "_on_next_tetromino_selected")
 	model.connect("spawned", self, "_on_tetromino_spawned")
+	model.connect("moved", self, "_on_tetromino_moved")
 
 
 func _ready():
 	fade_out(showup_duration)
-	model.select_next()
 
 
 func _exit_tree():
 	model.disconnect("next_selected", self, "_on_next_tetromino_selected")
 	model.disconnect("spawned", self, "_on_tetromino_spawned")
+	model.disconnect("moved", self, "_on_tetromino_moved")
 
 
 func _input(_event):
@@ -45,6 +46,9 @@ func _input(_event):
 		$Pause.show()
 		# will resume in _on_pause_exit
 		get_tree().paused = true
+
+	if Input.is_action_just_released("falldown"):
+		model.falldown()
 
 
 func _layout(size:Vector2) -> void:
@@ -94,4 +98,20 @@ func _on_tetromino_spawned(t:Tetromino) -> void:
 		parent.remove_child(node)
 
 	UtilsTetromino.Draw(t, parent, TileSize)
-	parent.position = Vector2(t.cell_x * TileSize, t.cell_y * TileSize)
+	parent.position = t.pos * Vector2(TileSize, TileSize)
+
+
+func _on_tetromino_moved(t:Tetromino, old_y:int) -> void:
+	var parent:Node2D = $Grid/Current
+	UtilsTetromino.Move(t, parent, old_y)
+	parent.position = t.pos * Vector2(TileSize, TileSize)
+
+
+func _on_fade_out_completed():
+	._on_fade_out_completed()
+	_gameplay_loop()
+
+
+func _gameplay_loop() -> void:
+	model.select_next()
+	model.spawn()

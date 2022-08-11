@@ -32,18 +32,16 @@ enum Rotation {
 var desc:String
 var type:int = -1
 var rotation:int = -1
-var cell_x:int = -1
-var cell_y:int = -1
+var pos:Vector2
 var color:Color
 var width:int = -1
 var height:int = -1
 
 
-func _init(tp:int, r:int, x:int, y:int):
+func _init(tp:int, r:int, p:Vector2 = Vector2(0, 0)):
 	type = tp
 	rotation = r
-	cell_x = x
-	cell_y = y
+	pos = p
 	color = Colors[tp]
 	width = Width
 	height = Width
