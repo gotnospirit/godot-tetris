@@ -1,7 +1,7 @@
 class_name UtilsTetromino
 
 
-static func Move(t:Tetromino, parent:Node2D, old_y:int) -> void:
+static func MoveUpdate(t:Tetromino, parent:Node2D, old_y:int) -> void:
 	if old_y >= 0 and t.pos.y == old_y:
 		return
 

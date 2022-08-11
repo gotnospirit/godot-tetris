@@ -13,12 +13,13 @@ var status:int
 var cells:Array = []
 var next:Tetromino = null
 var current:Tetromino = null
+var speed:float = 1.0
 
 signal status_updated
 signal next_selected
 signal spawned
 signal moved
-signal collision
+signal cells_updated
 
 
 func _init():
@@ -60,23 +61,67 @@ func move_right() -> void:
 	_move(Vector2.RIGHT)
 
 
-func falldown() -> void:
-	_move(Vector2.DOWN)
+func falldown() -> bool:
+	return _move(Vector2.DOWN)
 
 
-func _move(dir:Vector2) -> void:
+func _move(dir:Vector2) -> bool:
 	if current:
 		# stick inside the horizontal borders
 		var new_pos:Vector2 = current.pos + dir
 		if new_pos.x < 1 or new_pos.x >= Width - 2:
-			return
+			return false
 
-		if not detect_collision(current, dir):
-			var old_y:int = current.pos.y
-			current.pos += dir
-			emit_signal("moved", current, old_y)
-		else:
-			emit_signal("collision")
+		if detect_collision(current, dir):
+			return true
+		
+		var old_y:int = current.pos.y
+		current.pos += dir
+		emit_signal("moved", current, old_y)
+
+	return false
+
+
+func is_game_over() -> bool:
+	if not current:
+		return false
+
+	# This method is called after an "automatic falldown"
+	# and if a collision was detected,
+	# therefore, if the current tetromino has some cell outside,
+	# it means the game is over
+	return current.pos.y + current.height <= 0
+
+
+func consolidate() -> bool:
+	if not current:
+		return false
+
+	var updated:bool = false
+	# "move" current tetromino into the grid
+	for idx in range(current.get_length()):
+		if current.is_empty(idx):
+			continue
+
+		var px:int = idx % current.width
+		var py:int = idx / current.width
+		var fi:int = (current.pos.y + py) * Width + (current.pos.x + px)
+		if fi < 0:
+			continue
+
+		if cells[fi] != Cells.EMPTY:
+			push_error(
+				"something is wrong here: [px:" + str(px) + ", py:" + str(py)
+				+ ", fi:" + str(fi) + ", content:" + str(cells[fi]) + "]"
+			)
+			break
+
+		cells[fi] = current.type + 1
+		updated = true
+
+	if updated:
+		emit_signal("cells_updated")
+	return updated
 
 
 func get_size() -> Vector2:
@@ -130,7 +175,7 @@ func pretty_print(title:String) -> void:
 
 	s = ""
 	for cell in cells:
-		s += "X" if cell == Cells.BORDER else " "
+		s += " " if cell == Cells.EMPTY else "X"
 		if s.length() >= Width:
 			print("|" + s + "|")
 			s = ""

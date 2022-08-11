@@ -14,12 +14,12 @@ A Godot 3.4 project
     - [X] Move left/right
     - [ ] Rotate
     - [X] Falldown
-  - [ ] Automatic falldown
+  - [X] Automatic falldown
   - [X] Collision
   - [ ] Remove completed lines
   - [ ] Compute score
   - [ ] Increase speed
-  - [ ] Detect game over
+  - [X] Detect game over
 - [ ] Dynamic layout & tile size
 - [ ] Demo mode?
 - [ ] SFX?

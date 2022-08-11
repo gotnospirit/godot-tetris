@@ -14,7 +14,6 @@ func _enter_tree():
 func _ready():
 #	print("Screen._ready: ", self)
 	_disable_process()
-
 	$Fade.set_dimension(get_viewport_rect().size)
 
 
@@ -27,12 +26,12 @@ func set_model(g:Game) -> void:
 
 
 func fade_out(duration:float = fade_duration, color:Color = fade_color):
+	_disable_process()
 	$Fade.fade_out(color, duration, funcref(self, "_on_fade_out_completed"))
 
 
 func fade_in(duration:float = fade_duration, color:Color = fade_color):
 	_disable_process()
-
 	$Fade.fade_in(color, duration, funcref(self, "_on_fade_in_completed"))
 
 

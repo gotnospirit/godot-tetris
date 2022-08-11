@@ -6,6 +6,9 @@ const status_width:int = 150
 const TileSize:int = 32
 const BorderColor:Color = Color8(128, 128, 128, 140)
 
+var gameplay_delay:float = 1.0
+var _timer:SceneTreeTimer = null
+
 
 func _enter_tree():
 	print("Playing._enter_tree")
@@ -29,6 +32,7 @@ func _enter_tree():
 	model.connect("next_selected", self, "_on_next_tetromino_selected")
 	model.connect("spawned", self, "_on_tetromino_spawned")
 	model.connect("moved", self, "_on_tetromino_moved")
+	model.connect("cells_updated", self, "_on_grid_updated")
 
 
 func _ready():
@@ -39,6 +43,7 @@ func _exit_tree():
 	model.disconnect("next_selected", self, "_on_next_tetromino_selected")
 	model.disconnect("spawned", self, "_on_tetromino_spawned")
 	model.disconnect("moved", self, "_on_tetromino_moved")
+	model.disconnect("cells_updated", self, "_on_grid_updated")
 
 
 func _input(_event):
@@ -48,7 +53,12 @@ func _input(_event):
 		get_tree().paused = true
 
 	if Input.is_action_just_released("falldown"):
-		model.falldown()
+		var collided:bool = model.falldown()
+		if collided:
+			# we force the signal to be emitted
+			# so the gameplay loop will detect
+			# the collision faster
+			_timer.emit_signal("timeout")
 
 	if Input.is_action_just_released("move_left"):
 		model.move_left()
@@ -82,6 +92,18 @@ func _layout(size:Vector2) -> void:
 	status_node.position.y = grid_node.position.y
 
 
+func _on_grid_updated() -> void:
+	var from:Node2D = $Grid/Current
+	var to:Node2D = $Grid/Statics
+
+	# move tetromino's children to the "static grid"
+	for node in from.get_children():
+		var dup:ColorRect = node.duplicate()
+		# don't forget to offset them
+		dup.rect_position += from.position
+		to.add_child(dup)
+
+
 func _on_screen_resized() -> Vector2:
 	var size:Vector2 = ._on_screen_resized()
 	_layout(size)
@@ -109,7 +131,7 @@ func _on_tetromino_spawned(t:Tetromino) -> void:
 
 func _on_tetromino_moved(t:Tetromino, old_y:int) -> void:
 	var parent:Node2D = $Grid/Current
-	UtilsTetromino.Move(t, parent, old_y)
+	UtilsTetromino.MoveUpdate(t, parent, old_y)
 	parent.position = t.pos * Vector2(TileSize, TileSize)
 
 
@@ -121,3 +143,29 @@ func _on_fade_out_completed():
 func _gameplay_loop() -> void:
 	model.select_next()
 	model.spawn()
+
+	while true:
+		while true:
+			yield(_renew_timer(), "timeout")
+			var collided:bool = model.falldown()
+			if collided:
+				break
+
+		if model.is_game_over():
+			break
+
+		# TODO: make the tetromino blink before?
+		var succeed:bool = model.consolidate()
+		if not succeed:
+			break
+
+		# TODO: search for completed lines
+		model.spawn()
+
+	# TODO: play sound or animation before?
+	model.set_status(Game.Status.GAME_OVER)
+
+
+func _renew_timer() -> SceneTreeTimer:
+	_timer = get_tree().create_timer(gameplay_delay, false)
+	return _timer
