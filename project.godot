@@ -35,6 +35,11 @@ _global_script_classes=[ {
 "path": "res://models/tetromino.gd"
 }, {
 "base": "Reference",
+"class": "UtilsInput",
+"language": "GDScript",
+"path": "res://utils/input.gd"
+}, {
+"base": "Reference",
 "class": "UtilsTetromino",
 "language": "GDScript",
 "path": "res://utils/tetromino.gd"
@@ -45,6 +50,7 @@ _global_script_class_icons={
 "Game": "",
 "Screen": "",
 "Tetromino": "",
+"UtilsInput": "",
 "UtilsTetromino": ""
 }
 

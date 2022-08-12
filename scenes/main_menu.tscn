@@ -15,8 +15,8 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="CenterContainer" index="0"]
-margin_right = 214.0
+margin_left = 107.0
+margin_right = 107.0
 margin_bottom = 14.0
-text = "Press [space] to start a new game"
 align = 1
 valign = 1

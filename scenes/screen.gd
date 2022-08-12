@@ -9,6 +9,7 @@ const fade_color:Color = Color("#000000")
 
 func _enter_tree():
 	get_viewport().connect("size_changed", self, "_on_screen_resized")
+	Input.connect("joy_connection_changed", self, "_on_joy_connection_changed")
 
 
 func _ready():
@@ -19,6 +20,7 @@ func _ready():
 
 func _exit_tree():
 	get_viewport().disconnect("size_changed", self, "_on_screen_resized")
+	Input.disconnect("joy_connection_changed", self, "_on_joy_connection_changed")
 
 
 func set_model(g:Game) -> void:
@@ -59,3 +61,7 @@ func _on_screen_resized() -> Vector2:
 	var size:Vector2 = get_viewport_rect().size
 	$Fade.set_dimension(size)
 	return size
+
+
+func _on_joy_connection_changed(_device:int, _connected:bool):
+	pass
