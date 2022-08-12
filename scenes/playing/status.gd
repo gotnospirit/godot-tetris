@@ -1,7 +1,6 @@
 extends Node2D
 
 const TileSize:int = 32
-
 const FramePadding:int = 10
 const BorderWidth:int = 2
 const BorderRadius:int = 10
@@ -12,13 +11,22 @@ func set_next(t:Tetromino) -> void:
 		node.queue_free()
 		$Preview.remove_child(node)
 
-	UtilsTetromino.Draw(t, $Preview, TileSize)
+	var o:Tetromino = t.get_preview()
+	UtilsTetromino.Draw(o, $Preview, TileSize)
+
+	# center it
+	$Preview.position.x = (Tetromino.MaxWidth - o.width) * TileSize / 2 + FramePadding
+	$Preview.position.y = (Tetromino.MaxWidth - o.height) * TileSize / 2 + FramePadding
 
 
-func layout(min_size:Vector2) -> Vector2:
+func get_size() -> Vector2:
+	return $Frame.rect_size
+
+
+func layout(min_size:Vector2) -> void:
 	# next tetromino preview
-	var preview_width:int = Tetromino.Width * TileSize
-	var preview_height:int = Tetromino.Width * TileSize
+	var preview_width:int = Tetromino.MaxWidth * TileSize
+	var preview_height:int = Tetromino.MaxWidth * TileSize
 
 	var score_label:Vector2 = $Score/Label.rect_size
 	var score_count:Vector2 = $Score/Count.rect_size
@@ -53,15 +61,12 @@ func layout(min_size:Vector2) -> Vector2:
 	style.corner_radius_bottom_right = BorderRadius
 
 	# align rows
-	$Preview.position.x = FramePadding
-	$Preview.position.y = FramePadding
-	$Score.position.y = $Preview.position.y + FramePadding + preview_height
+	$Score.position.y = FramePadding * 2 + preview_height
 	$Level.position.y = $Score.position.y + FramePadding + score_height
 
 	# align the texts
 	$Score/Label.rect_position.x = FramePadding
 	$Score/Count.rect_position.x = $Frame.rect_size.x - FramePadding - score_count.x
+
 	$Level/Label.rect_position.x = FramePadding
 	$Level/Count.rect_position.x = $Frame.rect_size.x - FramePadding - level_count.x
-
-	return $Frame.rect_size

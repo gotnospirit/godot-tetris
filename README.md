@@ -10,9 +10,9 @@ A Godot 3.4 project
 - [ ] Gameplay
   - [X] Choose next tetromino
   - [X] Spawn tetromino
-  - [ ] Player control
+  - [X] Player control
     - [X] Move left/right
-    - [ ] Rotate
+    - [X] Rotate
     - [X] Falldown
   - [X] Automatic falldown
   - [X] Collision
@@ -25,5 +25,6 @@ A Godot 3.4 project
 - [ ] SFX?
 
 # Credits
-- [Tetris icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/tetris)
-- Collision detection inspired by [Javidx9](https://www.youtube.com/watch?v=8OK8_tHeCIA)
+- Icon based on [Tetris icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/tetris)
+- Based on [Javidx9 youtube video](https://www.youtube.com/watch?v=8OK8_tHeCIA)
+- Original Tetris concept, design and program by [Alexey Pajitnov](https://fr.wikipedia.org/wiki/Alekse%C3%AF_Pajitnov)

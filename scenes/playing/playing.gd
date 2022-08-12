@@ -1,49 +1,31 @@
 extends Screen
 
-const showup_duration:float = 1.0
-const status_width:int = 150
-
+const ShowupDuration:float = 1.0
+const StatusWidth:int = 150
 const TileSize:int = 32
 const BorderColor:Color = Color8(128, 128, 128, 140)
 
-var gameplay_delay:float = 1.0
+var falldown_delay:float = 1.0
 var _timer:SceneTreeTimer = null
 
 
 func _enter_tree():
-	print("Playing._enter_tree")
-#	model.pretty_print("grid")
 	$Pause.connect("exit", self, "_on_pause_exit")
 
-	# build the borders
-	var idx:int = 0
-	var w:int = model.get_size().x
-	for cell in model.cells:
-		if Game.Cells.BORDER == cell:
-			var x:int = idx % w
-			var y:int = idx / w
-			var node = UtilsTetromino.DrawCell(x, y, TileSize, BorderColor)
-			$Grid/Borders.add_child(node)
-		idx += 1
+	_create_border_cells()
 
 	_layout(get_viewport_rect().size)
+	$Status.layout(Vector2(StatusWidth, 0))
 
-	# connect events
-	model.connect("next_selected", self, "_on_next_tetromino_selected")
-	model.connect("spawned", self, "_on_tetromino_spawned")
-	model.connect("moved", self, "_on_tetromino_moved")
-	model.connect("cells_updated", self, "_on_grid_updated")
+	_bind_model()
 
 
 func _ready():
-	fade_out(showup_duration)
+	fade_out(ShowupDuration)
 
 
 func _exit_tree():
-	model.disconnect("next_selected", self, "_on_next_tetromino_selected")
-	model.disconnect("spawned", self, "_on_tetromino_spawned")
-	model.disconnect("moved", self, "_on_tetromino_moved")
-	model.disconnect("cells_updated", self, "_on_grid_updated")
+	_unbind_model()
 
 
 func _input(_event):
@@ -54,7 +36,7 @@ func _input(_event):
 
 	if Input.is_action_just_released("falldown"):
 		var collided:bool = model.falldown()
-		if collided:
+		if collided and _timer and _timer.time_left > 0.0:
 			# we force the signal to be emitted
 			# so the gameplay loop will detect
 			# the collision faster
@@ -66,6 +48,21 @@ func _input(_event):
 	if Input.is_action_just_released("move_right"):
 		model.move_right()
 
+	if Input.is_action_just_released("rotate"):
+		model.rotate()
+
+
+func _create_border_cells() -> void:
+	var idx:int = 0
+	var w:int = model.get_size().x
+	for cell in model.cells:
+		if Game.Cells.BORDER == cell:
+			var x:int = idx % w
+			var y:int = idx / w
+			var node = UtilsTetromino.DrawCell(x, y, TileSize, BorderColor)
+			$Grid/Borders.add_child(node)
+		idx += 1
+
 
 func _layout(size:Vector2) -> void:
 	var grid_node:Node2D = $Grid
@@ -73,14 +70,11 @@ func _layout(size:Vector2) -> void:
 
 	var grid_size:Vector2 = model.get_size()
 
-	# status panel
-	var status_panel_size:Vector2 = status_node.layout(Vector2(status_width, 0))
-
 	# grid
 	var grid_width:int = grid_size.x * TileSize
-	var game_width:int = grid_width + TileSize + status_panel_size.x / 2
+	var game_width:int = grid_width + TileSize + status_node.get_size().x / 2
 	var viewport_width:int = size.x
-	var border_x:int = viewport_width / 2 - game_width / 2
+	var border_x:int = (viewport_width - game_width) / 2
 	grid_node.position.x = border_x
 
 	var grid_height:int = grid_size.y * TileSize
@@ -90,6 +84,24 @@ func _layout(size:Vector2) -> void:
 	# status panel position
 	status_node.position.x = grid_node.position.x + grid_width + TileSize
 	status_node.position.y = grid_node.position.y
+
+
+func _bind_model() -> void:
+	if model:
+		model.connect("next_selected", self, "_on_next_tetromino_selected")
+		model.connect("spawned", self, "_on_tetromino_spawned")
+		model.connect("moved", self, "_on_tetromino_moved")
+		model.connect("cells_updated", self, "_on_grid_updated")
+		model.connect("rotated", self, "_on_tetromino_rotated")
+
+
+func _unbind_model() -> void:
+	if model:
+		model.disconnect("next_selected", self, "_on_next_tetromino_selected")
+		model.disconnect("spawned", self, "_on_tetromino_spawned")
+		model.disconnect("moved", self, "_on_tetromino_moved")
+		model.disconnect("cells_updated", self, "_on_grid_updated")
+		model.disconnect("rotated", self, "_on_tetromino_rotated")
 
 
 func _on_grid_updated() -> void:
@@ -121,6 +133,7 @@ func _on_next_tetromino_selected(t:Tetromino) -> void:
 
 func _on_tetromino_spawned(t:Tetromino) -> void:
 	var parent:Node2D = $Grid/Current
+
 	for node in parent.get_children():
 		node.queue_free()
 		parent.remove_child(node)
@@ -131,8 +144,15 @@ func _on_tetromino_spawned(t:Tetromino) -> void:
 
 func _on_tetromino_moved(t:Tetromino, old_y:int) -> void:
 	var parent:Node2D = $Grid/Current
-	UtilsTetromino.MoveUpdate(t, parent, old_y)
+
+	if old_y < 0 and t.pos.y != old_y:
+		UtilsTetromino.UpdateMove(t, parent)
+
 	parent.position = t.pos * Vector2(TileSize, TileSize)
+
+
+func _on_tetromino_rotated(t:Tetromino) -> void:
+	UtilsTetromino.UpdateRotate(t, $Grid/Current, TileSize)
 
 
 func _on_fade_out_completed():
@@ -146,26 +166,24 @@ func _gameplay_loop() -> void:
 
 	while true:
 		while true:
-			yield(_renew_timer(), "timeout")
+			_timer = get_tree().create_timer(falldown_delay / model.speed, false)
+			yield(_timer, "timeout")
+
 			var collided:bool = model.falldown()
 			if collided:
 				break
 
-		if model.is_game_over():
-			break
+		model.consolidate()
 
-		# TODO: make the tetromino blink before?
-		var succeed:bool = model.consolidate()
-		if not succeed:
-			break
+		# TODO: make the tetromino blink?
 
 		# TODO: search for completed lines
-		model.spawn()
+
+		var succeed:bool = model.spawn()
+		if not succeed:
+			# the game is over when the tetromino
+			# we want to spawn collides directly
+			break
 
 	# TODO: play sound or animation before?
 	model.set_status(Game.Status.GAME_OVER)
-
-
-func _renew_timer() -> SceneTreeTimer:
-	_timer = get_tree().create_timer(gameplay_delay, false)
-	return _timer

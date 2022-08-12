@@ -1,13 +1,13 @@
 class_name Game
 
+enum Status { INIT, PLAYING, GAME_OVER }
+
 const Width:int = 12
 const Height:int = 18
 const Cells = {
 	BORDER = 9,
 	EMPTY = 0
 }
-
-enum Status { INIT, PLAYING, GAME_OVER }
 
 var status:int
 var cells:Array = []
@@ -20,6 +20,7 @@ signal next_selected
 signal spawned
 signal moved
 signal cells_updated
+signal rotated
 
 
 func _init():
@@ -36,21 +37,25 @@ func select_next() -> void:
 	rng.randomize()
 	var type:int = rng.randi_range(0, Tetromino.Types.size() - 1)
 
-	next = Tetromino.new(type, Tetromino.Rotation.ZERO)
-
+	next = Tetromino.new(type)
 	emit_signal("next_selected", next)
 
 
-func spawn() -> void:
+func spawn() -> bool:
 	if not next:
 		push_error("Next tetromino not selected yet")
-		return
+		return false
 
 	current = next
 	select_next()
-	current.shrink()
-	current.pos = Vector2(Width / 2, -current.height)
+	current.pos = Vector2((Width - current.width) / 2, -current.height)
+
+	if detect_collision(current, Vector2.DOWN):
+		current = null
+		return false
+
 	emit_signal("spawned", current)
+	return true
 
 
 func move_left() -> void:
@@ -67,14 +72,9 @@ func falldown() -> bool:
 
 func _move(dir:Vector2) -> bool:
 	if current:
-		# stick inside the horizontal borders
-		var new_pos:Vector2 = current.pos + dir
-		if new_pos.x < 1 or new_pos.x >= Width - 2:
-			return false
-
 		if detect_collision(current, dir):
 			return true
-		
+
 		var old_y:int = current.pos.y
 		current.pos += dir
 		emit_signal("moved", current, old_y)
@@ -82,22 +82,36 @@ func _move(dir:Vector2) -> bool:
 	return false
 
 
-func is_game_over() -> bool:
+func rotate() -> void:
+	if current:
+		# no need to rotate a square
+		if current.type == Tetromino.Types.TetriminoO:
+			return
+
+		var new_rotation:int = Tetromino.Rotation.ZERO
+		match current.rotation:
+			Tetromino.Rotation.ZERO:
+				new_rotation = Tetromino.Rotation.QUARTER_1
+			Tetromino.Rotation.QUARTER_1:
+				new_rotation = Tetromino.Rotation.QUARTER_2
+			Tetromino.Rotation.QUARTER_2:
+				new_rotation = Tetromino.Rotation.QUARTER_3
+
+		var old_rotation:int = current.rotation
+		current.rotate(new_rotation)
+
+		if detect_collision(current, Vector2.ZERO):
+			# collision occured -> revert rotation
+			current.rotate(old_rotation)
+			return
+
+		emit_signal("rotated", current)
+
+
+func consolidate() -> void:
 	if not current:
-		return false
+		return
 
-	# This method is called after an "automatic falldown"
-	# and if a collision was detected,
-	# therefore, if the current tetromino has some cell outside,
-	# it means the game is over
-	return current.pos.y + current.height <= 0
-
-
-func consolidate() -> bool:
-	if not current:
-		return false
-
-	var updated:bool = false
 	# "move" current tetromino into the grid
 	for idx in range(current.get_length()):
 		if current.is_empty(idx):
@@ -106,6 +120,7 @@ func consolidate() -> bool:
 		var px:int = idx % current.width
 		var py:int = idx / current.width
 		var fi:int = (current.pos.y + py) * Width + (current.pos.x + px)
+
 		if fi < 0:
 			continue
 
@@ -117,11 +132,10 @@ func consolidate() -> bool:
 			break
 
 		cells[fi] = current.type + 1
-		updated = true
 
-	if updated:
-		emit_signal("cells_updated")
-	return updated
+	current = null
+
+	emit_signal("cells_updated")
 
 
 func get_size() -> Vector2:
@@ -141,16 +155,23 @@ func detect_collision(t:Tetromino, offset:Vector2) -> bool:
 	for idx in range(t.get_length()):
 		var px:int = idx % t.width
 
-		# We only evaluate the cells who are inside the grid's view
-		if cell_x + px >= 0 and cell_x + px < Width:
-			var py:int = idx / t.width
+		# We skip empty cells
+		if t.is_empty(idx):
+			continue
 
-			if cell_y + py >= 0 and cell_y + py < Height:
-				# Translate into grid index
-				var fi:int = (cell_y + py) * Width + (cell_x + px)
+		if cell_x + px <= 0 or cell_x + px >= Width - 1:
+#			print("border collision")
+			return true
 
-				if not t.is_empty(idx) and cells[fi] != Cells.EMPTY:
-					return true
+		var py:int = idx / t.width
+		# We make sure it's in bounds, so we can get
+		# a grid index for this cell
+		if cell_y + py >= 0 and cell_y + py < Height:
+			var fi:int = (cell_y + py) * Width + (cell_x + px)
+
+			if cells[fi] != Cells.EMPTY:
+#				print("cell collision")
+				return true
 
 	return false
 

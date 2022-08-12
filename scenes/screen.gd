@@ -1,10 +1,10 @@
 extends Node2D
 class_name Screen
 
-var model:Game = null
+const FadeDuration:float = 1.0
+const FadeColor:Color = Color("#000000")
 
-const fade_duration:float = 1.0
-const fade_color:Color = Color("#000000")
+var model:Game = null
 
 
 func _enter_tree():
@@ -13,7 +13,6 @@ func _enter_tree():
 
 
 func _ready():
-#	print("Screen._ready: ", self)
 	_disable_process()
 	$Fade.set_dimension(get_viewport_rect().size)
 
@@ -27,12 +26,12 @@ func set_model(g:Game) -> void:
 	model = g
 
 
-func fade_out(duration:float = fade_duration, color:Color = fade_color):
+func fade_out(duration:float = FadeDuration, color:Color = FadeColor):
 	_disable_process()
 	$Fade.fade_out(color, duration, funcref(self, "_on_fade_out_completed"))
 
 
-func fade_in(duration:float = fade_duration, color:Color = fade_color):
+func fade_in(duration:float = FadeDuration, color:Color = FadeColor):
 	_disable_process()
 	$Fade.fade_in(color, duration, funcref(self, "_on_fade_in_completed"))
 
@@ -48,12 +47,10 @@ func _enable_process() -> void:
 
 
 func _on_fade_out_completed():
-#	print("Screen._on_fade_out_completed: ", self)
 	_enable_process()
 
 
 func _on_fade_in_completed():
-#	print("Screen._on_fade_in_completed: ", self)
 	pass
 
 

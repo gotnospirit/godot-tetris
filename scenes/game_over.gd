@@ -1,6 +1,6 @@
 extends Screen
 
-const transition_delay:float = 2.0
+const TransitionDelay:float = 2.0
 
 
 func _enter_tree():
@@ -13,7 +13,7 @@ func _ready():
 
 func _on_fade_out_completed():
 	._on_fade_out_completed()
-	get_tree().create_timer(transition_delay).connect("timeout", self, "_on_timer_timeout")
+	get_tree().create_timer(TransitionDelay).connect("timeout", self, "_on_timer_timeout")
 
 
 func _on_fade_in_completed():

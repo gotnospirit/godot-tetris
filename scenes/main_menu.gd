@@ -1,6 +1,6 @@
 extends Screen
 
-const label:String = "Press [%s] to start a new game"
+const MenuText:String = "Press [%s] to start a new game"
 
 
 func _enter_tree():
@@ -31,7 +31,7 @@ func _on_screen_resized() -> Vector2:
 func _update_label() -> void:
 	var key_names:PoolStringArray = UtilsInput.GetKeyNames("start_game")
 	var key_str:String = "n/a" if key_names.empty() else key_names.join(" / ")
-	$CenterContainer/Label.text = label % key_str
+	$CenterContainer/Label.text = MenuText % key_str
 
 
 func _on_joy_connection_changed(device:int, connected:bool):

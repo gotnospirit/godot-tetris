@@ -1,10 +1,27 @@
 class_name UtilsTetromino
 
 
-static func MoveUpdate(t:Tetromino, parent:Node2D, old_y:int) -> void:
-	if old_y >= 0 and t.pos.y == old_y:
-		return
+static func UpdateRotate(t:Tetromino, parent:Node2D, tile_size:int) -> void:
+	# Reset the children position and transparency
+	var node_idx:int = 0
+	for idx in range(t.get_length()):
+		if t.is_empty(idx):
+			continue
 
+		var x:int = idx % t.width
+		var y:int = idx / t.width
+
+		var node:ColorRect = parent.get_child(node_idx)
+		var pos:Vector2 = Vector2(x * tile_size, y * tile_size)
+		node.rect_position = pos
+
+		var cell_y:int = y + t.pos.y
+		node.modulate.a = 0 if cell_y < 0 else 1
+
+		node_idx += 1
+
+
+static func UpdateMove(t:Tetromino, parent:Node2D) -> void:
 	var node_idx:int = 0
 	for idx in range(t.get_length()):
 		if t.is_empty(idx):
