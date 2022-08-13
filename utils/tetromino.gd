@@ -48,7 +48,7 @@ static func Draw(t:Tetromino, parent:Node2D, tile_size:int) -> void:
 
 		var x:int = idx % t.width
 		var y:int = idx / t.width
-		var node = DrawCell(x, y, tile_size, t.color, y + t.pos.y < 0)
+		var node:ColorRect = DrawCell(x, y, tile_size, t.color, y + t.pos.y < 0)
 		parent.add_child(node)
 
 

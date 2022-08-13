@@ -12,7 +12,7 @@ var _timer:SceneTreeTimer = null
 func _enter_tree():
 	$Pause.connect("exit", self, "_on_pause_exit")
 
-	_create_border_cells()
+	_create_grid_cells()
 
 	_layout(get_viewport_rect().size)
 	$Status.layout(Vector2(StatusWidth, 0))
@@ -52,15 +52,25 @@ func _input(_event):
 		model.rotate()
 
 
-func _create_border_cells() -> void:
+func _create_grid_cells() -> void:
 	var idx:int = 0
 	var w:int = model.get_size().x
+
 	for cell in model.cells:
-		if Game.Cells.BORDER == cell:
-			var x:int = idx % w
-			var y:int = idx / w
-			var node = UtilsTetromino.DrawCell(x, y, TileSize, BorderColor)
-			$Grid/Borders.add_child(node)
+		if Game.Cells.EMPTY == cell:
+			idx += 1
+			continue
+
+		var color:Color = BorderColor
+		var parent:Node2D = $Grid/Borders
+
+		if Game.Cells.BORDER != cell:
+			color = Tetromino.Colors[cell]
+			parent = $Grid/Statics
+
+		var node:ColorRect = UtilsTetromino.DrawCell(idx % w, idx / w, TileSize, color)
+
+		parent.add_child(node)
 		idx += 1
 
 
