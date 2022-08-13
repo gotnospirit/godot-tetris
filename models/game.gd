@@ -19,7 +19,7 @@ signal status_updated
 signal next_selected
 signal spawned
 signal moved
-signal consolidated
+signal locked
 signal rotated
 signal lines_cleared
 signal gravity_applied
@@ -73,32 +73,34 @@ func falldown() -> bool:
 
 
 func rotate() -> void:
-	if current:
-		# no need to rotate a square
-		if current.type == Tetromino.Types.TetriminoO:
-			return
+	if not current:
+		return
 
-		var new_rotation:int = Tetromino.Rotation.ZERO
-		match current.rotation:
-			Tetromino.Rotation.ZERO:
-				new_rotation = Tetromino.Rotation.QUARTER_1
-			Tetromino.Rotation.QUARTER_1:
-				new_rotation = Tetromino.Rotation.QUARTER_2
-			Tetromino.Rotation.QUARTER_2:
-				new_rotation = Tetromino.Rotation.QUARTER_3
+	# no need to rotate a square
+	if current.type == Tetromino.Types.TetriminoO:
+		return
 
-		var old_rotation:int = current.rotation
-		current.rotate(new_rotation)
+	var new_rotation:int = Tetromino.Rotation.ZERO
+	match current.rotation:
+		Tetromino.Rotation.ZERO:
+			new_rotation = Tetromino.Rotation.QUARTER_1
+		Tetromino.Rotation.QUARTER_1:
+			new_rotation = Tetromino.Rotation.QUARTER_2
+		Tetromino.Rotation.QUARTER_2:
+			new_rotation = Tetromino.Rotation.QUARTER_3
 
-		if detect_collision(current, Vector2.ZERO):
-			# collision occured -> revert rotation
-			current.rotate(old_rotation)
-			return
+	var old_rotation:int = current.rotation
+	current.rotate(new_rotation)
 
-		emit_signal("rotated", current)
+	if detect_collision(current, Vector2.ZERO):
+		# collision occured -> revert rotation
+		current.rotate(old_rotation)
+		return
+
+	emit_signal("rotated", current)
 
 
-func consolidate() -> void:
+func lock() -> void:
 	if not current:
 		return
 
@@ -125,7 +127,7 @@ func consolidate() -> void:
 
 	current = null
 
-	emit_signal("consolidated")
+	emit_signal("locked")
 
 
 func check_for_completed_lines() -> void:
@@ -216,13 +218,15 @@ func detect_collision(t:Tetromino, offset:Vector2) -> bool:
 
 
 func _move(dir:Vector2) -> bool:
-	if current:
-		if detect_collision(current, dir):
-			return true
+	if not current:
+		return false
 
-		var old_y:int = current.pos.y
-		current.pos += dir
-		emit_signal("moved", current, old_y)
+	if detect_collision(current, dir):
+		return true
+
+	var old_y:int = current.pos.y
+	current.pos += dir
+	emit_signal("moved", current, old_y)
 
 	return false
 

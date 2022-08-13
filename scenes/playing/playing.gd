@@ -101,7 +101,7 @@ func _bind_model() -> void:
 		model.connect("next_selected", self, "_on_next_tetromino_selected")
 		model.connect("spawned", self, "_on_tetromino_spawned")
 		model.connect("moved", self, "_on_tetromino_moved")
-		model.connect("consolidated", self, "_on_grid_consolidated")
+		model.connect("locked", self, "_on_tetromino_locked")
 		model.connect("rotated", self, "_on_tetromino_rotated")
 		model.connect("lines_cleared", self, "_on_lines_cleared")
 		model.connect("gravity_applied", self, "_on_gravity_applied")
@@ -112,13 +112,13 @@ func _unbind_model() -> void:
 		model.disconnect("next_selected", self, "_on_next_tetromino_selected")
 		model.disconnect("spawned", self, "_on_tetromino_spawned")
 		model.disconnect("moved", self, "_on_tetromino_moved")
-		model.disconnect("consolidated", self, "_on_grid_consolidated")
+		model.disconnect("locked", self, "_on_tetromino_locked")
 		model.disconnect("rotated", self, "_on_tetromino_rotated")
 		model.disconnect("lines_cleared", self, "_on_lines_cleared")
 		model.disconnect("gravity_applied", self, "_on_gravity_applied")
 
 
-func _on_grid_consolidated() -> void:
+func _on_tetromino_locked() -> void:
 	# move tetromino's children to the "static grid"
 	# TODO: make the tetromino blink?
 	UtilsGrid.MoveInto($Grid/Current, $Grid/Statics)
@@ -192,7 +192,7 @@ func _gameplay_loop() -> void:
 			if collided:
 				break
 
-		model.consolidate()
+		model.lock()
 
 		model.check_for_completed_lines()
 
