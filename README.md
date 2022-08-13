@@ -16,13 +16,18 @@ A Godot 3.4 project
     - [X] Falldown
   - [X] Automatic falldown
   - [X] Collision
-  - [ ] Remove completed lines
+  - [ ] Completed lines
+    - [X] Detect
+    - [X] Update the grid values
+    - [X] Update the childnodes position
+    - [ ] Cascading
   - [ ] Compute score
   - [ ] Increase speed
   - [X] Detect game over
 - [ ] Dynamic layout & tile size
 - [ ] Demo mode?
 - [ ] SFX?
+- [ ] Animation
 
 # Credits
 - Icon based on [Tetris icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/tetris)

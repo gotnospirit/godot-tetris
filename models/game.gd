@@ -19,8 +19,10 @@ signal status_updated
 signal next_selected
 signal spawned
 signal moved
-signal cells_updated
+signal consolidated
 signal rotated
+signal lines_cleared
+signal gravity_applied
 
 
 func _init():
@@ -68,18 +70,6 @@ func move_right() -> void:
 
 func falldown() -> bool:
 	return _move(Vector2.DOWN)
-
-
-func _move(dir:Vector2) -> bool:
-	if current:
-		if detect_collision(current, dir):
-			return true
-
-		var old_y:int = current.pos.y
-		current.pos += dir
-		emit_signal("moved", current, old_y)
-
-	return false
 
 
 func rotate() -> void:
@@ -135,7 +125,56 @@ func consolidate() -> void:
 
 	current = null
 
-	emit_signal("cells_updated")
+	emit_signal("consolidated")
+
+
+func check_for_completed_lines() -> void:
+	var ret:Array = []
+
+	# from bottom to up, detect completed lines
+	# and clear their cells
+	for y in range(Height - 2, -1, -1):
+		var line_cells:Dictionary = _get_line(y)
+
+		if _is_completed_line(line_cells):
+			for cell_idx in line_cells:
+				cells[cell_idx] = Cells.EMPTY
+
+			ret.append(y)
+
+	if not ret.empty():
+		# TODO: compute and update score
+		emit_signal("lines_cleared", ret)
+
+
+func apply_gravity() -> void:
+	# from bottom to up, accumulate empty lines
+	# and when we encounter a non-empty one
+	# move the content of its cells to
+	# first empty line, then accumulate it in the empty lines
+	var empty_lines:Array = []
+	var moved_lines:Dictionary = {}
+
+	for y in range(Height - 2, -1, -1):
+		var line_cells:Dictionary = _get_line(y)
+
+		if _is_empty_line(line_cells):
+			empty_lines.push_back(y)
+		elif not empty_lines.empty():
+			var target_y:int = empty_lines.pop_front()
+			var diff_y:int = target_y - y
+
+			for cell_idx in line_cells:
+				var target_idx:int = cell_idx + diff_y * Width
+
+				cells[target_idx] = cells[cell_idx]
+				cells[cell_idx] = Cells.EMPTY
+
+			empty_lines.push_back(y)
+			moved_lines[y] = target_y
+
+	if not moved_lines.empty():
+		emit_signal("gravity_applied", moved_lines)
 
 
 func get_size() -> Vector2:
@@ -174,6 +213,46 @@ func detect_collision(t:Tetromino, offset:Vector2) -> bool:
 				return true
 
 	return false
+
+
+func _move(dir:Vector2) -> bool:
+	if current:
+		if detect_collision(current, dir):
+			return true
+
+		var old_y:int = current.pos.y
+		current.pos += dir
+		emit_signal("moved", current, old_y)
+
+	return false
+
+
+func _is_completed_line(line_cells:Dictionary) -> bool:
+	return _count_empty_cells(line_cells) == 0
+
+
+func _is_empty_line(line_cells:Dictionary) -> bool:
+	return _count_empty_cells(line_cells) == line_cells.size()
+
+
+func _count_empty_cells(line_cells:Dictionary) -> int:
+	var n_empty:int = 0
+
+	for cell_idx in line_cells:
+		if line_cells[cell_idx] == Cells.EMPTY:
+			n_empty += 1
+
+	return n_empty
+
+
+func _get_line(y:int) -> Dictionary:
+	var ret:Dictionary = {}
+
+	for x in range(1, Width - 1):
+		var idx:int = y * Width + x
+		ret[idx] = cells[idx]
+
+	return ret
 
 
 func pretty_print(title:String) -> void:

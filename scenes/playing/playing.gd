@@ -101,8 +101,10 @@ func _bind_model() -> void:
 		model.connect("next_selected", self, "_on_next_tetromino_selected")
 		model.connect("spawned", self, "_on_tetromino_spawned")
 		model.connect("moved", self, "_on_tetromino_moved")
-		model.connect("cells_updated", self, "_on_grid_updated")
+		model.connect("consolidated", self, "_on_grid_consolidated")
 		model.connect("rotated", self, "_on_tetromino_rotated")
+		model.connect("lines_cleared", self, "_on_lines_cleared")
+		model.connect("gravity_applied", self, "_on_gravity_applied")
 
 
 func _unbind_model() -> void:
@@ -110,20 +112,27 @@ func _unbind_model() -> void:
 		model.disconnect("next_selected", self, "_on_next_tetromino_selected")
 		model.disconnect("spawned", self, "_on_tetromino_spawned")
 		model.disconnect("moved", self, "_on_tetromino_moved")
-		model.disconnect("cells_updated", self, "_on_grid_updated")
+		model.disconnect("consolidated", self, "_on_grid_consolidated")
 		model.disconnect("rotated", self, "_on_tetromino_rotated")
+		model.disconnect("lines_cleared", self, "_on_lines_cleared")
+		model.disconnect("gravity_applied", self, "_on_gravity_applied")
 
 
-func _on_grid_updated() -> void:
-	var from:Node2D = $Grid/Current
-	var to:Node2D = $Grid/Statics
-
+func _on_grid_consolidated() -> void:
 	# move tetromino's children to the "static grid"
-	for node in from.get_children():
-		var dup:ColorRect = node.duplicate()
-		# don't forget to offset them
-		dup.rect_position += from.position
-		to.add_child(dup)
+	# TODO: make the tetromino blink?
+	UtilsGrid.MoveInto($Grid/Current, $Grid/Statics)
+
+
+func _on_lines_cleared(lines:Array) -> void:
+	# TODO: animation?
+	UtilsGrid.RemoveLines($Grid/Statics, lines, TileSize)
+	model.apply_gravity()
+
+
+func _on_gravity_applied(moved:Dictionary) -> void:
+	# TODO: animation?
+	UtilsGrid.MoveLines($Grid/Statics, moved, TileSize)
 
 
 func _on_screen_resized() -> Vector2:
@@ -185,9 +194,7 @@ func _gameplay_loop() -> void:
 
 		model.consolidate()
 
-		# TODO: make the tetromino blink?
-
-		# TODO: search for completed lines
+		model.check_for_completed_lines()
 
 		var succeed:bool = model.spawn()
 		if not succeed:
