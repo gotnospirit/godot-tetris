@@ -42,6 +42,9 @@ func _input(_event):
 			# the collision faster
 			_timer.emit_signal("timeout")
 
+	if Input.is_action_just_released("sonic_drop"):
+		model.sonic_drop()
+
 	if Input.is_action_just_released("move_left"):
 		model.move_left()
 

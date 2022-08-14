@@ -14,7 +14,7 @@ A Godot 3.4 project
     - [X] Move left/right
     - [X] Rotate
     - [X] Falldown
-    - [ ] Sonic drop
+    - [X] Sonic drop
   - [X] Automatic falldown
   - [X] Collision
   - [ ] Completed lines
@@ -36,8 +36,19 @@ A Godot 3.4 project
 - [ ] Demo mode?
 - [ ] SFX?
 - [ ] Animation
+- [ ] Guideline compliance
+  - [ ] SRS
+  - [ ] Standard mappings
+  - [ ] Random generator
+  - [ ] Hold piece
+  - [X] Ghost piece
+  - [ ] Tetrimino
+  - [ ] Level up
+  - [ ] Variant of Roger Dean's Tetris logo
+  - [ ] Tetris theme song
 
 # Credits
 - Icon based on [Tetris icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/tetris)
 - Based on [Javidx9 youtube video](https://www.youtube.com/watch?v=8OK8_tHeCIA)
 - Original Tetris concept, design and program by [Alexey Pajitnov](https://fr.wikipedia.org/wiki/Alekse%C3%AF_Pajitnov)
+- [Tetris Guideline](https://harddrop.com/wiki/Tetris_Guideline)

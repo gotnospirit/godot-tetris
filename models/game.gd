@@ -77,6 +77,17 @@ func move_right() -> void:
 		_update_ghost_pos()
 
 
+func sonic_drop() -> void:
+	if not current:
+		return
+
+	# sonic drop is a non-locking hard drop
+	# we just move the current tetromino to ghost position
+	var old_y:int = current.pos.y
+	current.pos = ghost_pos
+	emit_signal("moved", current, old_y)
+
+
 func falldown() -> bool:
 	return _move(Vector2.DOWN)
 

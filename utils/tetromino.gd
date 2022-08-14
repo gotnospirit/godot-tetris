@@ -15,6 +15,7 @@ static func RotateGhost(t:Tetromino, parent:Node2D, tile_size:int) -> void:
 static func _Rotate(t:Tetromino, parent:Node2D, tile_size:int, is_ghost:bool) -> void:
 	# Reset the children position and transparency
 	var node_idx:int = 0
+
 	for idx in range(t.get_length()):
 		if t.is_empty(idx):
 			continue
@@ -35,21 +36,21 @@ static func _Rotate(t:Tetromino, parent:Node2D, tile_size:int, is_ghost:bool) ->
 
 static func UpdateTransparency(t:Tetromino, parent:Node2D) -> void:
 	var node_idx:int = 0
+
 	for idx in range(t.get_length()):
 		if t.is_empty(idx):
 			continue
 
-		var cell_y:int = (idx / t.width) + t.pos.y
+		var cell_y:int = (idx / t.height) + t.pos.y
 		# not visible yet
 		if cell_y < 0:
 			node_idx += 1
 			continue
-		# already visible
-		elif cell_y > 0:
-			break
 
 		# remove transparency
-		parent.get_child(node_idx).modulate.a = 1
+		var node:ColorRect = parent.get_child(node_idx)
+		if 0 == node.modulate.a:
+			node.modulate.a = 1
 		node_idx += 1
 
 
