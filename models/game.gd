@@ -1,6 +1,7 @@
 class_name Game
 
 enum Status { INIT, PLAYING, GAME_OVER }
+enum LastAction { NONE, MOVE, SOFT_DROP, SONIC_DROP, ROTATE }
 
 const Width:int = 12
 const Height:int = 18
@@ -16,6 +17,7 @@ var current:Tetromino = null
 var speed:float = 1.0
 var ghost_pos:Vector2 = Vector2.ZERO
 var score:Scoring = null
+var last_action:int = 0
 
 signal status_updated
 signal next_selected
@@ -63,6 +65,7 @@ func spawn() -> bool:
 
 	emit_signal("spawned", current)
 	_update_ghost_pos()
+	last_action = LastAction.NONE
 	return true
 
 
@@ -71,6 +74,7 @@ func move_left() -> void:
 
 	if succeed:
 		_update_ghost_pos()
+		last_action = LastAction.MOVE
 
 
 func move_right() -> void:
@@ -78,9 +82,11 @@ func move_right() -> void:
 
 	if succeed:
 		_update_ghost_pos()
+		last_action = LastAction.MOVE
 
 
 func soft_drop() -> bool:
+	last_action = LastAction.SOFT_DROP
 	return falldown()
 
 
@@ -92,6 +98,7 @@ func sonic_drop() -> void:
 	# we just move the current tetromino to ghost position
 	current.pos = ghost_pos
 	emit_signal("moved", current)
+	last_action = LastAction.SONIC_DROP
 
 
 func falldown() -> bool:
@@ -124,6 +131,7 @@ func rotate(clockwise:bool) -> void:
 
 	emit_signal("rotated", current)
 	_update_ghost_pos()
+	last_action = LastAction.ROTATE
 
 
 func lock() -> void:
@@ -151,8 +159,6 @@ func lock() -> void:
 
 		cells[fi] = current.type + 1
 
-	current = null
-
 	emit_signal("locked")
 
 
@@ -175,10 +181,29 @@ func check_for_completed_lines() -> void:
 			empty_lines += 1
 
 	if not ret.empty():
+		var nb_soft:int = 0
+		var nb_sonic:int = 0
 		var perfect_clear:bool = empty_lines == Height - 1
-		score.update(ret.size(), perfect_clear)
+
+		if last_action == LastAction.SOFT_DROP or last_action == LastAction.SONIC_DROP:
+			# count how many cells are involved into the clearing of these lines
+			for idx in range(current.get_length()):
+				if current.is_empty(idx):
+					continue
+
+				var cell_y:int = current.pos.y + idx / current.width
+
+				if cell_y in ret:
+					if last_action == LastAction.SOFT_DROP:
+						nb_soft += 1
+					elif last_action == LastAction.SONIC_DROP:
+						nb_sonic += 1
+
+		score.update(ret.size(), perfect_clear, nb_soft, nb_sonic)
 
 		emit_signal("lines_cleared", ret)
+
+	current = null
 
 
 func apply_gravity() -> void:

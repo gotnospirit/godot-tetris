@@ -13,7 +13,7 @@ func _init():
 	lines = 0
 
 
-func update(nb_cleared_lines:int, perfect_clear:bool) -> void:
+func update(nb_cleared_lines:int, perfect_clear:bool, nb_soft:int, nb_sonic:int) -> void:
 	var nb_points:int
 
 	match nb_cleared_lines:
@@ -28,5 +28,7 @@ func update(nb_cleared_lines:int, perfect_clear:bool) -> void:
 
 	lines += nb_cleared_lines
 	score += nb_points * level
+	score += nb_soft * 1
+	score += nb_sonic * 2
 
 	emit_signal("updated", score, lines, level)

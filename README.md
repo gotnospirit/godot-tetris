@@ -25,7 +25,7 @@ A Godot 3.4 project
   - [ ] Scoring
     - [X] Basic
     - [ ] T-Spin
-    - [ ] Soft/sonic drop
+    - [X] Soft/sonic drop
     - [ ] Combo
     - [X] Perfect clear
   - [X] Ghost piece
@@ -38,7 +38,7 @@ A Godot 3.4 project
 - [ ] Animation
 - [ ] Guideline compliance
   - [ ] SRS
-  - [ ] Standard mappings
+  - [X] Standard mappings
   - [ ] Random generator
   - [ ] Hold piece
   - [X] Ghost piece
