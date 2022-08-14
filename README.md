@@ -23,11 +23,11 @@ A Godot 3.4 project
     - [X] Update the childnodes position
     - [ ] Cascading
   - [ ] Scoring
-    - [ ] Basic
+    - [X] Basic
     - [ ] T-Spin
     - [ ] Soft/sonic drop
     - [ ] Combo
-    - [ ] Perfect clear
+    - [X] Perfect clear
   - [X] Ghost piece
   - [ ] Hold piece
   - [ ] Increase speed

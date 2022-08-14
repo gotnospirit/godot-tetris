@@ -1,10 +1,12 @@
 extends Screen
 
-const TransitionDelay:float = 2.0
+const TransitionDelay:float = 3.0
+const Text:String = "\nYour final score is: %d"
 
 
 func _enter_tree():
 	$CenterContainer.rect_min_size = get_viewport_rect().size
+	$CenterContainer/VBoxContainer/Score.text = Text % model.score.score
 
 
 func _ready():

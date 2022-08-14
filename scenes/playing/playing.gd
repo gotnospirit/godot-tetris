@@ -197,6 +197,11 @@ func _on_ghost_updated(pos:Vector2) -> void:
 	$Grid/Ghost.position = pos * TileSize
 
 
+func set_model(g:Game) -> void:
+	.set_model(g)
+	$Status.set_model(g.score)
+
+
 func _on_fade_out_completed():
 	._on_fade_out_completed()
 	_gameplay_loop()

@@ -13,6 +13,8 @@ func _exit_tree():
 func change_state(state:String) -> void:
 	if _current_state:
 		_current_state.on_state_exit()
+
 	_current_state = get_node(state)
+
 	if _current_state:
 		_current_state.on_state_enter()

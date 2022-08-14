@@ -15,6 +15,7 @@ var next:Tetromino = null
 var current:Tetromino = null
 var speed:float = 1.0
 var ghost_pos:Vector2 = Vector2.ZERO
+var score:Scoring = null
 
 signal status_updated
 signal next_selected
@@ -29,6 +30,7 @@ signal ghost_updated
 
 func _init():
 	status = Status.INIT
+	score = Scoring.new()
 
 	cells.resize(Width * Height)
 	for i in range(Width * Height):
@@ -159,17 +161,23 @@ func check_for_completed_lines() -> void:
 
 	# from bottom to top, detect completed lines
 	# and clear their cells
+	var empty_lines = 0
 	for y in range(Height - 2, -1, -1):
 		var line_cells:Dictionary = _get_line(y)
 
 		if _is_completed_line(line_cells):
 			for cell_idx in line_cells:
 				cells[cell_idx] = Cells.EMPTY
+			empty_lines += 1
 
 			ret.append(y)
+		elif _is_empty_line(line_cells):
+			empty_lines += 1
 
 	if not ret.empty():
-		# TODO: compute and update score
+		var perfect_clear:bool = empty_lines == Height - 1
+		score.update(ret.size(), perfect_clear)
+
 		emit_signal("lines_cleared", ret)
 
 

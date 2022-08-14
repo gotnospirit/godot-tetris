@@ -20,6 +20,8 @@ custom_styles/panel = SubResource( 1 )
 [node name="Count" type="Label" parent="Score"]
 margin_right = 8.0
 margin_bottom = 14.0
+grow_horizontal = 0
+size_flags_horizontal = 3
 text = "0"
 align = 2
 
@@ -33,6 +35,8 @@ text = "Score:"
 [node name="Count" type="Label" parent="Level"]
 margin_right = 8.0
 margin_bottom = 14.0
+grow_horizontal = 0
+size_flags_horizontal = 3
 text = "0"
 align = 2
 
@@ -40,3 +44,18 @@ align = 2
 margin_right = 38.0
 margin_bottom = 14.0
 text = "Level:"
+
+[node name="Lines" type="Node2D" parent="."]
+
+[node name="Count" type="Label" parent="Lines"]
+margin_right = 8.0
+margin_bottom = 14.0
+grow_horizontal = 0
+size_flags_horizontal = 3
+text = "0"
+align = 2
+
+[node name="Label" type="Label" parent="Lines"]
+margin_right = 38.0
+margin_bottom = 14.0
+text = "Lines:"
