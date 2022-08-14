@@ -35,8 +35,8 @@ func _input(_event):
 		get_tree().paused = true
 
 	if Input.is_action_just_released("falldown"):
-		var collided:bool = model.falldown()
-		if collided and _timer and _timer.time_left > 0.0:
+		var succeed:bool = model.falldown()
+		if not succeed and _timer and _timer.time_left > 0.0:
 			# we force the signal to be emitted
 			# so the gameplay loop will detect
 			# the collision faster
@@ -105,6 +105,7 @@ func _bind_model() -> void:
 		model.connect("rotated", self, "_on_tetromino_rotated")
 		model.connect("lines_cleared", self, "_on_lines_cleared")
 		model.connect("gravity_applied", self, "_on_gravity_applied")
+		model.connect("ghost_updated", self, "_on_ghost_updated")
 
 
 func _unbind_model() -> void:
@@ -116,12 +117,20 @@ func _unbind_model() -> void:
 		model.disconnect("rotated", self, "_on_tetromino_rotated")
 		model.disconnect("lines_cleared", self, "_on_lines_cleared")
 		model.disconnect("gravity_applied", self, "_on_gravity_applied")
+		model.disconnect("ghost_updated", self, "_on_ghost_updated")
 
 
 func _on_tetromino_locked() -> void:
 	# move tetromino's children to the "static grid"
 	# TODO: make the tetromino blink?
 	UtilsGrid.MoveInto($Grid/Current, $Grid/Statics)
+
+	# clear the ghost
+	var parent:Node2D = $Grid/Ghost
+
+	for node in parent.get_children():
+		node.queue_free()
+		parent.remove_child(node)
 
 
 func _on_lines_cleared(lines:Array) -> void:
@@ -151,27 +160,34 @@ func _on_next_tetromino_selected(t:Tetromino) -> void:
 
 
 func _on_tetromino_spawned(t:Tetromino) -> void:
-	var parent:Node2D = $Grid/Current
+	var parent:Node2D
 
-	for node in parent.get_children():
-		node.queue_free()
-		parent.remove_child(node)
-
+	# draw the current tetromino
+	parent = $Grid/Current
 	UtilsTetromino.Draw(t, parent, TileSize)
-	parent.position = t.pos * Vector2(TileSize, TileSize)
+	parent.position = t.pos * TileSize
+
+	# draw its ghost
+	parent = $Grid/Ghost
+	UtilsTetromino.DrawGhost(t, parent, TileSize)
 
 
 func _on_tetromino_moved(t:Tetromino, old_y:int) -> void:
 	var parent:Node2D = $Grid/Current
 
 	if old_y < 0 and t.pos.y != old_y:
-		UtilsTetromino.UpdateMove(t, parent)
+		UtilsTetromino.UpdateTransparency(t, parent)
 
-	parent.position = t.pos * Vector2(TileSize, TileSize)
+	parent.position = t.pos * TileSize
 
 
 func _on_tetromino_rotated(t:Tetromino) -> void:
-	UtilsTetromino.UpdateRotate(t, $Grid/Current, TileSize)
+	UtilsTetromino.Rotate(t, $Grid/Current, TileSize)
+	UtilsTetromino.RotateGhost(t, $Grid/Ghost, TileSize)
+
+
+func _on_ghost_updated(pos:Vector2) -> void:
+	$Grid/Ghost.position = pos * TileSize
 
 
 func _on_fade_out_completed():
@@ -188,8 +204,8 @@ func _gameplay_loop() -> void:
 			_timer = get_tree().create_timer(falldown_delay / model.speed, false)
 			yield(_timer, "timeout")
 
-			var collided:bool = model.falldown()
-			if collided:
+			var succeed:bool = model.falldown()
+			if not succeed:
 				break
 
 		model.lock()

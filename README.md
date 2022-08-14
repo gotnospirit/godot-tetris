@@ -10,10 +10,11 @@ A Godot 3.4 project
 - [ ] Gameplay
   - [X] Choose next tetromino
   - [X] Spawn tetromino
-  - [X] Player control
+  - [ ] Player control
     - [X] Move left/right
     - [X] Rotate
     - [X] Falldown
+    - [ ] Sonic drop
   - [X] Automatic falldown
   - [X] Collision
   - [ ] Completed lines
@@ -21,7 +22,14 @@ A Godot 3.4 project
     - [X] Update the grid values
     - [X] Update the childnodes position
     - [ ] Cascading
-  - [ ] Compute score
+  - [ ] Scoring
+    - [ ] Basic
+    - [ ] T-Spin
+    - [ ] Soft/sonic drop
+    - [ ] Combo
+    - [ ] Perfect clear
+  - [X] Ghost piece
+  - [ ] Hold piece
   - [ ] Increase speed
   - [X] Detect game over
 - [ ] Dynamic layout & tile size

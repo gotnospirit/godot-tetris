@@ -14,6 +14,7 @@ var cells:Array = []
 var next:Tetromino = null
 var current:Tetromino = null
 var speed:float = 1.0
+var ghost_pos:Vector2 = Vector2.ZERO
 
 signal status_updated
 signal next_selected
@@ -23,6 +24,7 @@ signal locked
 signal rotated
 signal lines_cleared
 signal gravity_applied
+signal ghost_updated
 
 
 func _init():
@@ -57,15 +59,22 @@ func spawn() -> bool:
 		return false
 
 	emit_signal("spawned", current)
+	_update_ghost_pos()
 	return true
 
 
 func move_left() -> void:
-	_move(Vector2.LEFT)
+	var succeed:bool = _move(Vector2.LEFT)
+
+	if succeed:
+		_update_ghost_pos()
 
 
 func move_right() -> void:
-	_move(Vector2.RIGHT)
+	var succeed:bool = _move(Vector2.RIGHT)
+
+	if succeed:
+		_update_ghost_pos()
 
 
 func falldown() -> bool:
@@ -98,6 +107,7 @@ func rotate() -> void:
 		return
 
 	emit_signal("rotated", current)
+	_update_ghost_pos()
 
 
 func lock() -> void:
@@ -133,7 +143,7 @@ func lock() -> void:
 func check_for_completed_lines() -> void:
 	var ret:Array = []
 
-	# from bottom to up, detect completed lines
+	# from bottom to top, detect completed lines
 	# and clear their cells
 	for y in range(Height - 2, -1, -1):
 		var line_cells:Dictionary = _get_line(y)
@@ -150,7 +160,7 @@ func check_for_completed_lines() -> void:
 
 
 func apply_gravity() -> void:
-	# from bottom to up, accumulate empty lines
+	# from bottom to top, accumulate empty lines
 	# and when we encounter a non-empty one
 	# move the content of its cells to
 	# first empty line, then accumulate it in the empty lines
@@ -205,9 +215,13 @@ func detect_collision(t:Tetromino, offset:Vector2) -> bool:
 			return true
 
 		var py:int = idx / t.width
-		# We make sure it's in bounds, so we can get
-		# a grid index for this cell
-		if cell_y + py >= 0 and cell_y + py < Height:
+
+		if cell_y + py >= Height:
+#			print("out of bounds")
+			return true
+
+		# We only consider visible cells
+		if cell_y + py >= 0:
 			var fi:int = (cell_y + py) * Width + (cell_x + px)
 
 			if cells[fi] != Cells.EMPTY:
@@ -217,18 +231,36 @@ func detect_collision(t:Tetromino, offset:Vector2) -> bool:
 	return false
 
 
+func _update_ghost_pos() -> void:
+	if not current:
+		return
+
+	# from bottom to top, test collision with each line,
+	# if detected, continue
+	# if not detected, update the ghost pos and stop
+	for y in range(Height - 2, -1, -1):
+		var diff_y:int = y - current.pos.y
+
+		if detect_collision(current, Vector2(0, diff_y)):
+			continue
+
+		ghost_pos = Vector2(current.pos.x, y)
+		emit_signal("ghost_updated", ghost_pos)
+		return
+
+
 func _move(dir:Vector2) -> bool:
 	if not current:
-		return false
+		return true
 
 	if detect_collision(current, dir):
-		return true
+		return false
 
 	var old_y:int = current.pos.y
 	current.pos += dir
 	emit_signal("moved", current, old_y)
 
-	return false
+	return true
 
 
 func _is_completed_line(line_cells:Dictionary) -> bool:
