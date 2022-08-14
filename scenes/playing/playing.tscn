@@ -18,6 +18,9 @@ script = ExtResource( 2 )
 
 [node name="Statics" type="Node2D" parent="Grid" index="3"]
 
+[node name="Mask" type="ColorRect" parent="Grid" index="4"]
+color = Color( 0, 0, 0, 1 )
+
 [node name="Status" parent="." index="1" instance=ExtResource( 4 )]
 
 [node name="Pause" parent="." index="2" instance=ExtResource( 3 )]

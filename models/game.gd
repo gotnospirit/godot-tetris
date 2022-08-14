@@ -83,9 +83,8 @@ func sonic_drop() -> void:
 
 	# sonic drop is a non-locking hard drop
 	# we just move the current tetromino to ghost position
-	var old_y:int = current.pos.y
 	current.pos = ghost_pos
-	emit_signal("moved", current, old_y)
+	emit_signal("moved", current)
 
 
 func falldown() -> bool:
@@ -246,18 +245,21 @@ func _update_ghost_pos() -> void:
 	if not current:
 		return
 
-	# from bottom to top, test collision with each line,
-	# if detected, continue
-	# if not detected, update the ghost pos and stop
-	for y in range(Height - 2, -1, -1):
+	# from top to bottom, test collision with each line,
+	# if not detected, update the ghost pos
+	# if detected then stop the loop
+	var updated:bool = false
+	for y in range(current.pos.y + 1, Height):
 		var diff_y:int = y - current.pos.y
 
 		if detect_collision(current, Vector2(0, diff_y)):
-			continue
+			break
 
 		ghost_pos = Vector2(current.pos.x, y)
+		updated = true
+
+	if updated:
 		emit_signal("ghost_updated", ghost_pos)
-		return
 
 
 func _move(dir:Vector2) -> bool:
@@ -267,9 +269,8 @@ func _move(dir:Vector2) -> bool:
 	if detect_collision(current, dir):
 		return false
 
-	var old_y:int = current.pos.y
 	current.pos += dir
-	emit_signal("moved", current, old_y)
+	emit_signal("moved", current)
 
 	return true
 

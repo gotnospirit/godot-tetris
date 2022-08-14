@@ -80,6 +80,7 @@ func _create_grid_cells() -> void:
 func _layout(size:Vector2) -> void:
 	var grid_node:Node2D = $Grid
 	var status_node:Node2D = $Status
+	var mask_node:ColorRect = $Grid/Mask
 
 	var grid_size:Vector2 = model.get_size()
 
@@ -93,6 +94,11 @@ func _layout(size:Vector2) -> void:
 	var grid_height:int = grid_size.y * TileSize
 	var viewport_height:int = size.y
 	grid_node.position.y = viewport_height - grid_height
+	
+	# mask
+	var mask_height:int = Tetromino.MaxWidth * TileSize
+	mask_node.rect_min_size = Vector2(grid_width, mask_height)
+	mask_node.rect_position.y = -mask_height
 
 	# status panel position
 	status_node.position.x = grid_node.position.x + grid_width + TileSize
@@ -175,18 +181,13 @@ func _on_tetromino_spawned(t:Tetromino) -> void:
 	UtilsTetromino.DrawGhost(t, parent, TileSize)
 
 
-func _on_tetromino_moved(t:Tetromino, old_y:int) -> void:
-	var parent:Node2D = $Grid/Current
-
-	if old_y < 0 and t.pos.y != old_y:
-		UtilsTetromino.UpdateTransparency(t, parent)
-
-	parent.position = t.pos * TileSize
+func _on_tetromino_moved(t:Tetromino) -> void:
+	$Grid/Current.position = t.pos * TileSize
 
 
 func _on_tetromino_rotated(t:Tetromino) -> void:
 	UtilsTetromino.Rotate(t, $Grid/Current, TileSize)
-	UtilsTetromino.RotateGhost(t, $Grid/Ghost, TileSize)
+	UtilsTetromino.Rotate(t, $Grid/Ghost, TileSize)
 
 
 func _on_ghost_updated(pos:Vector2) -> void:
