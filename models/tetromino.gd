@@ -61,7 +61,7 @@ func _init(tp:int):
 	color = Colors[tp]
 	width = ShapeWidths[tp]
 	height = width
-	desc = GetRotatedDesc(Shapes[tp], width, rotation)
+	desc = _GetRotatedDesc(Shapes[tp], width, rotation)
 
 
 func get_length() -> int:
@@ -74,13 +74,13 @@ func is_empty(idx:int) -> bool:
 
 func rotate(r:int) -> void:
 	rotation = r
-	desc = GetRotatedDesc(Shapes[type], ShapeWidths[type], r)
+	desc = _GetRotatedDesc(Shapes[type], ShapeWidths[type], r)
 	width = ShapeWidths[type]
 	height = width
 
 
 func pretty_print() -> void:
-	PrettyPrint(desc, width)
+	_PrettyPrint(desc, width)
 
 
 func get_preview() -> Tetromino:
@@ -132,7 +132,7 @@ func _locate_empty(line_scan:bool) -> Array:
 	return ret
 
 
-static func PrettyPrint(s:String, w:int) -> void:
+static func _PrettyPrint(s:String, w:int) -> void:
 	var tmp:String = ""
 
 	print("+" + "-".repeat(w) + "+")
@@ -144,7 +144,7 @@ static func PrettyPrint(s:String, w:int) -> void:
 	print("+" + "-".repeat(w) + "+")
 
 
-static func GetRotatedDesc(s:String, w:int, r:int) -> String:
+static func _GetRotatedDesc(s:String, w:int, r:int) -> String:
 	if r == Rotation.ZERO:
 		# get a copy of the original
 		return s.strip_escapes()
@@ -152,13 +152,13 @@ static func GetRotatedDesc(s:String, w:int, r:int) -> String:
 	var ret:String = " ".repeat(s.length())
 
 	for idx in range(s.length()):
-		var ri:int = GetIndex(idx % w, int(idx / w), w, r)
+		var ri:int = _GetIndex(idx % w, int(idx / w), w, r)
 		ret[ri] = s[idx]
 
 	return ret
 
 
-static func GetIndex(x:int, y:int, w:int, r:int) -> int:
+static func _GetIndex(x:int, y:int, w:int, r:int) -> int:
 	var ret:int = 0
 
 	match r:
