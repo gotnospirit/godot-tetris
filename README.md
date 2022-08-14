@@ -12,7 +12,7 @@ A Godot 3.4 project
   - [X] Spawn tetromino
   - [ ] Player control
     - [X] Move left/right
-    - [X] Rotate
+    - [X] Rotate (counter-)clockwise
     - [X] Falldown
     - [X] Sonic drop
   - [X] Automatic falldown
@@ -51,4 +51,4 @@ A Godot 3.4 project
 - Icon based on [Tetris icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/tetris)
 - Based on [Javidx9 youtube video](https://www.youtube.com/watch?v=8OK8_tHeCIA)
 - Original Tetris concept, design and program by [Alexey Pajitnov](https://fr.wikipedia.org/wiki/Alekse%C3%AF_Pajitnov)
-- [Tetris Guideline](https://harddrop.com/wiki/Tetris_Guideline)
+- [Tetris Guideline](https://harddrop.com/wiki/Tetris_Guideline) by [Henk Rogers](https://fr.wikipedia.org/wiki/Henk_Rogers)

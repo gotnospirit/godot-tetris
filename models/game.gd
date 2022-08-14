@@ -91,7 +91,7 @@ func falldown() -> bool:
 	return _move(Vector2.DOWN)
 
 
-func rotate() -> void:
+func rotate(clockwise:bool) -> void:
 	if not current:
 		return
 
@@ -99,14 +99,13 @@ func rotate() -> void:
 	if current.type == Tetromino.Types.TetriminoO:
 		return
 
-	var new_rotation:int = Tetromino.Rotation.ZERO
-	match current.rotation:
-		Tetromino.Rotation.ZERO:
-			new_rotation = Tetromino.Rotation.QUARTER_1
-		Tetromino.Rotation.QUARTER_1:
-			new_rotation = Tetromino.Rotation.QUARTER_2
-		Tetromino.Rotation.QUARTER_2:
-			new_rotation = Tetromino.Rotation.QUARTER_3
+	var new_rotation:int = current.rotation
+	new_rotation += 1 if clockwise else -1
+
+	if new_rotation < 0:
+		new_rotation = Tetromino.Rotation.size() - 1
+	elif new_rotation >= Tetromino.Rotation.size():
+		new_rotation = 0
 
 	var old_rotation:int = current.rotation
 	current.rotate(new_rotation)

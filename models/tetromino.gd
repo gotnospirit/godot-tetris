@@ -165,10 +165,10 @@ static func GetIndex(x:int, y:int, w:int, r:int) -> int:
 		Rotation.ZERO:
 			ret = y * w + x
 		Rotation.QUARTER_1:
-			ret = w * (w - 1) + y - (x * w)
+			ret = (w - 1) - y + (x * w)
 		Rotation.QUARTER_2:
 			ret = (w * w) - 1 - (y * w) - x
 		Rotation.QUARTER_3:
-			ret = (w - 1) - y + (x * w)
+			ret = w * (w - 1) + y - (x * w)
 
 	return ret

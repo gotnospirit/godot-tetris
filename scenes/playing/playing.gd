@@ -51,8 +51,11 @@ func _input(_event):
 	if Input.is_action_just_released("move_right"):
 		model.move_right()
 
-	if Input.is_action_just_released("rotate"):
-		model.rotate()
+	if Input.is_action_just_released("rotate_clockwise"):
+		model.rotate(true)
+
+	if Input.is_action_just_released("rotate_counterclockwise"):
+		model.rotate(false)
 
 
 func _create_grid_cells() -> void:
