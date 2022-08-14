@@ -13,7 +13,7 @@ A Godot 3.4 project
   - [ ] Player control
     - [X] Move left/right
     - [X] Rotate (counter-)clockwise
-    - [X] Falldown
+    - [X] Soft drop
     - [X] Sonic drop
   - [X] Automatic falldown
   - [X] Collision

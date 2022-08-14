@@ -78,6 +78,10 @@ func move_right() -> void:
 		_update_ghost_pos()
 
 
+func soft_drop() -> bool:
+	return falldown()
+
+
 func sonic_drop() -> void:
 	if not current:
 		return

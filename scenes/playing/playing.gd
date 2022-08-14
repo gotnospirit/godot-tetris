@@ -34,8 +34,8 @@ func _input(_event):
 		# will resume in _on_pause_exit
 		get_tree().paused = true
 
-	if Input.is_action_just_released("falldown"):
-		var succeed:bool = model.falldown()
+	if Input.is_action_pressed("soft_drop"):
+		var succeed:bool = model.soft_drop()
 		if not succeed and _timer and _timer.time_left > 0.0:
 			# we force the signal to be emitted
 			# so the gameplay loop will detect
@@ -45,10 +45,10 @@ func _input(_event):
 	if Input.is_action_just_released("sonic_drop"):
 		model.sonic_drop()
 
-	if Input.is_action_just_released("move_left"):
+	if Input.is_action_pressed("move_left"):
 		model.move_left()
 
-	if Input.is_action_just_released("move_right"):
+	if Input.is_action_pressed("move_right"):
 		model.move_right()
 
 	if Input.is_action_just_released("rotate_clockwise"):
