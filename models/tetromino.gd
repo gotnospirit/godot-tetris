@@ -18,13 +18,13 @@ enum Rotation {
 
 const MaxWidth:int = 4
 const Shapes:Array = [
-	"  X   X   X   X ",
-	"  X XX X ",
-	" X  XX  X",
+	"    XXXX        ",
+	"XX  XX   ",
+	" XXXX    ",
 	"XXXX",
-	" X XX  X ",
-	" X  X XX ",
-	" X  X  XX",
+	" X XXX   ",
+	"X  XXX   ",
+	"  XXXX   ",
 ]
 const ShapeWidths:Array = [
 	4,

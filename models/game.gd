@@ -52,7 +52,8 @@ func spawn() -> bool:
 
 	current = next
 	select_next()
-	current.pos = Vector2((Width - current.width) / 2, -current.height)
+
+	current.pos = Vector2((Width - current.width) / 2, -2)
 
 	if detect_collision(current, Vector2.DOWN):
 		current = null
