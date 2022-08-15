@@ -10,7 +10,7 @@ A Godot 3.4 project
 - [ ] Gameplay
   - [X] Choose next tetromino
   - [X] Spawn tetromino
-  - [ ] Player control
+  - [X] Player control
     - [X] Move left/right
     - [X] Rotate (counter-)clockwise
     - [X] Soft drop
@@ -26,7 +26,7 @@ A Godot 3.4 project
     - [X] Basic
     - [ ] T-Spin
     - [X] Soft/sonic drop
-    - [ ] Combo
+    - [X] Combo
     - [X] Perfect clear
   - [X] Ghost piece
   - [ ] Hold piece

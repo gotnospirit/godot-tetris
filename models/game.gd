@@ -180,7 +180,9 @@ func check_for_completed_lines() -> void:
 		elif _is_empty_line(line_cells):
 			empty_lines += 1
 
-	if not ret.empty():
+	if ret.empty():
+		score.update(0)
+	else:
 		var nb_soft:int = 0
 		var nb_sonic:int = 0
 		var perfect_clear:bool = empty_lines == Height - 1
