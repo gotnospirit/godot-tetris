@@ -9,12 +9,29 @@ const Cells = {
 	BORDER = 9,
 	EMPTY = 0
 }
+# https://harddrop.com/wiki/Tetris_Worlds#Gravity
+const Gravities:Array = [
+	0.01667,
+	0.021017,
+	0.026977,
+	0.035256,
+	0.04693,
+	0.06361,
+	0.0879,
+	0.1236,
+	0.1775,
+	0.2598,
+	0.388,
+	0.59,
+	0.92,
+	1.46,
+	2.36,
+]
 
 var status:int
 var cells:Array = []
 var next:Tetromino = null
 var current:Tetromino = null
-var speed:float = 1.0
 var ghost_pos:Vector2 = Vector2.ZERO
 var score:Scoring = null
 var last_action:int = 0
@@ -40,6 +57,14 @@ func _init():
 	for i in range(Width * Height):
 		var is_border:bool = (i % Width == 0) or (i % Width == Width - 1) or (int(i / Width) == Height - 1)
 		cells[i] = Cells.BORDER if is_border else Cells.EMPTY
+
+
+func get_falldown_delay() -> float:
+	var level:int = clamp(score.level, 1, Gravities.size())
+	var gravity:float = Gravities[level - 1]
+	var frames:int = ceil(1 / gravity)
+
+	return frames / 60.0
 
 
 func spawn() -> bool:

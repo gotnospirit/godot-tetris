@@ -30,7 +30,7 @@ A Godot 3.4 project
     - [X] Perfect clear
   - [X] Ghost piece
   - [ ] Hold piece
-  - [ ] Increase speed
+  - [X] Increase speed
   - [X] Detect game over
 - [ ] Dynamic layout & tile size
 - [ ] Demo mode?

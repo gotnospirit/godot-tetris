@@ -5,7 +5,6 @@ const StatusWidth:int = 150
 const TileSize:int = 32
 const BorderColor:Color = Color8(128, 128, 128, 140)
 
-var falldown_delay:float = 1.0
 var _timer:SceneTreeTimer = null
 
 
@@ -212,7 +211,7 @@ func _gameplay_loop() -> void:
 
 	while true:
 		while true:
-			_timer = get_tree().create_timer(falldown_delay / model.speed, false)
+			_timer = get_tree().create_timer(model.get_falldown_delay(), false)
 			yield(_timer, "timeout")
 
 			var succeed:bool = model.falldown()
