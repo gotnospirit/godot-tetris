@@ -43,7 +43,7 @@ A Godot 3.4 project
   - [ ] Hold piece
   - [X] Ghost piece
   - [ ] Tetrimino
-  - [ ] Level up
+  - [X] Level up
   - [ ] Variant of Roger Dean's Tetris logo
   - [ ] Tetris theme song
 
