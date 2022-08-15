@@ -25,6 +25,11 @@ _global_script_classes=[ {
 "path": "res://models/game.gd"
 }, {
 "base": "Reference",
+"class": "Rng",
+"language": "GDScript",
+"path": "res://models/rng.gd"
+}, {
+"base": "Reference",
 "class": "Scoring",
 "language": "GDScript",
 "path": "res://models/scoring.gd"
@@ -58,6 +63,7 @@ _global_script_class_icons={
 "FSM_State": "",
 "FiniteStateMachine": "",
 "Game": "",
+"Rng": "",
 "Scoring": "",
 "Screen": "",
 "Tetromino": "",

@@ -39,7 +39,7 @@ A Godot 3.4 project
 - [ ] Guideline compliance
   - [ ] SRS
   - [X] Standard mappings
-  - [ ] Random generator
+  - [X] Random generator
   - [ ] Hold piece
   - [X] Ghost piece
   - [ ] Tetrimino

@@ -18,6 +18,7 @@ var speed:float = 1.0
 var ghost_pos:Vector2 = Vector2.ZERO
 var score:Scoring = null
 var last_action:int = 0
+var rng:Rng = null
 
 signal status_updated
 signal next_selected
@@ -33,6 +34,7 @@ signal ghost_updated
 func _init():
 	status = Status.INIT
 	score = Scoring.new()
+	rng = Rng.new()
 
 	cells.resize(Width * Height)
 	for i in range(Width * Height):
@@ -40,22 +42,11 @@ func _init():
 		cells[i] = Cells.BORDER if is_border else Cells.EMPTY
 
 
-func select_next() -> void:
-	var rng = RandomNumberGenerator.new()
-	rng.randomize()
-	var type:int = rng.randi_range(0, Tetromino.Types.size() - 1)
-
-	next = Tetromino.new(type)
-	emit_signal("next_selected", next)
-
-
 func spawn() -> bool:
-	if not next:
-		push_error("Next tetromino not selected yet")
-		return false
+	current = next if next else rng.pop()
 
-	current = next
-	select_next()
+	next = rng.pop()
+	emit_signal("next_selected", next)
 
 	current.pos = Vector2((Width - current.width) / 2, -2)
 

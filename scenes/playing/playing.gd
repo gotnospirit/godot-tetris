@@ -208,7 +208,6 @@ func _on_fade_out_completed():
 
 
 func _gameplay_loop() -> void:
-	model.select_next()
 	model.spawn()
 
 	while true:
