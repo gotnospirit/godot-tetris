@@ -28,7 +28,7 @@ const Gravities:Array = [
 	2.36,
 ]
 
-var status:int
+var status:int = Status.INIT
 var cells:Array = []
 var next:Tetromino = null
 var current:Tetromino = null
@@ -49,11 +49,18 @@ signal ghost_updated
 
 
 func _init():
+	cells.resize(Width * Height)
+
+
+func reset() -> void:
 	status = Status.INIT
+	next = null
+	current = null
+	ghost_pos = Vector2.ZERO
 	score = Scoring.new()
+	last_action = 0
 	rng = Rng.new()
 
-	cells.resize(Width * Height)
 	for i in range(Width * Height):
 		var is_border:bool = (i % Width == 0) or (i % Width == Width - 1) or (int(i / Width) == Height - 1)
 		cells[i] = Cells.BORDER if is_border else Cells.EMPTY

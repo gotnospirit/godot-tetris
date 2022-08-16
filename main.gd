@@ -18,6 +18,7 @@ func _on_status_updated(new_status:int) -> void:
 			$FiniteStateMachine.change_state("MainMenu")
 
 		Game.Status.PLAYING:
+			model.reset()
 			$FiniteStateMachine.change_state("Playing")
 
 		Game.Status.GAME_OVER:

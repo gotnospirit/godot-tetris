@@ -1,5 +1,5 @@
 # Godot Tetris
-A Godot 3.4 project
+An implementation of Tetris using Godot 3.4.4
 
 # TODO
 - [ ] Screens
