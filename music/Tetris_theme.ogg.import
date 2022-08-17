@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Tetris_theme.ogg-8a13efd7d672b82e50e2b9c8fbb8dc46.oggstr"
+
+[deps]
+
+source_file="res://music/Tetris_theme.ogg"
+dest_files=[ "res://.import/Tetris_theme.ogg-8a13efd7d672b82e50e2b9c8fbb8dc46.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

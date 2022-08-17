@@ -1,8 +1,11 @@
 extends Screen
 
+const TetrisTheme = preload("res://music/Tetris_theme.ogg")
 const ShowupDuration:float = 1.0
 const TileSizes:Array = [32, 24, 16, 8]
 const BorderColor:Color = Color8(128, 128, 128, 140)
+const GameOverMusicFade:float = 1.5
+const PauseMusicFade:float = 0.75
 
 var _timer:SceneTreeTimer = null
 var _tile_size:int
@@ -27,14 +30,16 @@ func _exit_tree():
 	_unbind_model()
 
 
-func _input(_event):
+func _input(event):
 	if Input.is_action_just_released("pause"):
+		$Music.fade_out(PauseMusicFade)
 		$Pause.show()
-		# will resume in _on_pause_exit
+		# will resume with _on_music_pause_finished
 		get_tree().paused = true
 
 	if Input.is_action_pressed("soft_drop"):
 		var succeed:bool = model.soft_drop()
+
 		if not succeed and _timer and _timer.time_left > 0.0:
 			# we force the signal to be emitted
 			# so the gameplay loop will detect
@@ -180,8 +185,12 @@ func _on_screen_resized() -> Vector2:
 
 
 func _on_pause_exit() -> void:
-	get_tree().paused = false
+	$Music.fade_in(PauseMusicFade, funcref(self, "_on_music_pause_finished"))
 	$Pause.hide()
+
+
+func _on_music_pause_finished() -> void:
+	get_tree().paused = false
 
 
 func _on_next_tetromino_selected(t:Tetromino) -> void:
@@ -216,6 +225,7 @@ func _on_ghost_updated(pos:Vector2) -> void:
 
 func _on_fade_out_completed():
 	._on_fade_out_completed()
+	$Music.start(TetrisTheme)
 	_gameplay_loop()
 
 
@@ -241,5 +251,9 @@ func _gameplay_loop() -> void:
 			# we want to spawn collides directly
 			break
 
-	# TODO: play sound or animation before?
+	# TODO: cut music with a game over sound and play an animation?
+	$Music.fade_out(GameOverMusicFade, funcref(self, "_on_game_over_music_fade"))
+
+
+func _on_game_over_music_fade() -> void:
 	model.set_status(Game.Status.GAME_OVER)

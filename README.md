@@ -45,7 +45,7 @@ An implementation of Tetris using Godot 3.4.4
   - [ ] Tetrimino
   - [X] Level up
   - [ ] Variant of Roger Dean's Tetris logo
-  - [ ] Tetris theme song
+  - [X] Tetris theme song
 
 # Credits
 - Icon based on [Tetris icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/tetris)
