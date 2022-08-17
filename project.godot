@@ -84,6 +84,13 @@ gdscript/warnings/narrowing_conversion=false
 gdscript/warnings/return_value_discarded=false
 gdscript/warnings/integer_division=false
 
+[display]
+
+window/size/width=1280
+window/size/height=720
+window/size/resizable=false
+window/handheld/orientation="sensor"
+
 [input]
 
 start_game={

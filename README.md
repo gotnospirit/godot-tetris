@@ -32,7 +32,7 @@ An implementation of Tetris using Godot 3.4.4
   - [ ] Hold piece
   - [X] Increase speed
   - [X] Detect game over
-- [ ] Dynamic layout & tile size
+- [X] Dynamic layout & tile size
 - [ ] Demo mode?
 - [ ] SFX?
 - [ ] Animation

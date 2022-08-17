@@ -1,11 +1,9 @@
 extends Node2D
 
-const TileSize:int = 32
 const FramePadding:int = 10
-const BorderWidth:int = 2
-const BorderRadius:int = 10
 
-var model:Scoring = null
+var _model:Scoring = null
+var _tile_size:int = 32
 
 
 func _exit_tree():
@@ -13,98 +11,67 @@ func _exit_tree():
 
 
 func set_model(s:Scoring) -> void:
-	model = s
+	_model = s
 
 	_on_updated(s.score, s.lines, s.level)
 	_bind_model()
 
 
 func set_next(t:Tetromino) -> void:
-	for node in $Preview.get_children():
+	var parent:Node2D = $Frame/Preview
+
+	for node in parent.get_children():
 		node.queue_free()
-		$Preview.remove_child(node)
+		parent.remove_child(node)
 
 	var o:Tetromino = t.get_preview()
-	UtilsTetromino.Draw(o, $Preview, TileSize)
+	UtilsTetromino.Draw(o, parent, _tile_size)
 
 	# center it
-	$Preview.position.x = (Tetromino.MaxWidth - o.width) * TileSize / 2 + FramePadding
-	$Preview.position.y = (Tetromino.MaxWidth - o.height) * TileSize / 2 + FramePadding
+	parent.position.x = ($Frame.rect_size.x - o.width * _tile_size) / 2
+	parent.position.y = (Tetromino.MaxWidth - o.height) * _tile_size / 2 + FramePadding
 
 
-func get_size() -> Vector2:
-	return $Frame.rect_size
+func get_min_width(tile_size:int) -> int:
+	return Tetromino.MaxWidth * tile_size + FramePadding * 2
 
 
-func layout(min_size:Vector2) -> void:
+func layout(tile_size:int) -> void:
+	_tile_size = tile_size
+
 	# next tetromino preview
-	var preview_width:int = Tetromino.MaxWidth * TileSize
-	var preview_height:int = Tetromino.MaxWidth * TileSize
+	var preview_width:int = Tetromino.MaxWidth * _tile_size
+	var preview_height:int = Tetromino.MaxWidth * _tile_size
 
-	var score_label:Vector2 = $Score/Label.rect_size
-	var score_count:Vector2 = $Score/Count.rect_size
-	var score_width:int = score_label.x + FramePadding + score_count.x
-	var score_height:int = max(score_label.y, score_count.y)
-
-	var level_label:Vector2 = $Level/Label.rect_size
-	var level_count:Vector2 = $Level/Count.rect_size
-	var level_width:int = level_label.x + FramePadding + level_count.x
-	var level_height:int = max(level_label.y, level_count.y)
-
-	var lines_label:Vector2 = $Lines/Label.rect_size
-	var lines_count:Vector2 = $Lines/Count.rect_size
-	var lines_width:int = lines_label.x + FramePadding + lines_count.x
-	var lines_height:int = max(lines_label.y, lines_count.y)
+	$Frame/Preview.position.x = FramePadding
+	$Frame/Preview.position.y = FramePadding
 
 	# frame size
-	var frame_width:int = max(preview_width, max(score_width, max(level_width, lines_width))) + FramePadding * 2
-	var frame_height:int = preview_height + score_height + level_height + lines_height + FramePadding * 5
-	$Frame.rect_size = Vector2(
-		max(frame_width, min_size.x),
-		max(frame_height, min_size.y)
-	)
+	var frame_width:int = preview_width + FramePadding * 2
+	var frame_height:int = preview_height + FramePadding * 2
 
-	var style = $Frame.get_stylebox("panel", "")
+	$Frame.rect_size = Vector2(frame_width, frame_height)
 
-	# frame border width
-	style.border_width_top = BorderWidth
-	style.border_width_bottom = BorderWidth
-	style.border_width_left = BorderWidth
-	style.border_width_right = BorderWidth
+	$Score.rect_size.x = frame_width
+	$Level.rect_size.x = frame_width
+	$Lines.rect_size.x = frame_width
 
-	# frame border radius
-	style.corner_radius_top_left = BorderRadius
-	style.corner_radius_top_right = BorderRadius
-	style.corner_radius_bottom_left = BorderRadius
-	style.corner_radius_bottom_right = BorderRadius
-
-	# align rows
-	$Score.position.y = FramePadding * 2 + preview_height
-	$Level.position.y = $Score.position.y + FramePadding + score_height
-	$Lines.position.y = $Level.position.y + FramePadding + level_height
-
-	# align the texts
-	$Score/Label.rect_position.x = FramePadding
-	$Score/Count.rect_position.x = $Frame.rect_size.x - FramePadding - score_count.x
-
-	$Level/Label.rect_position.x = FramePadding
-	$Level/Count.rect_position.x = $Frame.rect_size.x - FramePadding - level_count.x
-
-	$Lines/Label.rect_position.x = FramePadding
-	$Lines/Count.rect_position.x = $Frame.rect_size.x - FramePadding - lines_count.x
+	$Score.rect_position.y = FramePadding * 3 + preview_height
+	$Level.rect_position.y = $Score.rect_position.y + FramePadding + $Score.rect_size.y
+	$Lines.rect_position.y = $Level.rect_position.y + FramePadding + $Level.rect_size.y
 
 
 func _bind_model() -> void:
-	if model:
-		model.connect("updated", self, "_on_updated")
+	if _model:
+		_model.connect("updated", self, "_on_updated")
 
 
 func _unbind_model() -> void:
-	if model:
-		model.disconnect("updated", self, "_on_updated")
+	if _model:
+		_model.disconnect("updated", self, "_on_updated")
 
 
 func _on_updated(score:int, lines:int, level:int) -> void:
-	$Score/Count.text = str(score)
-	$Level/Count.text = str(level)
-	$Lines/Count.text = str(lines)
+	$Score.count = score
+	$Level.count = level
+	$Lines.count = lines

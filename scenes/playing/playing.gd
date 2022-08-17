@@ -1,25 +1,25 @@
 extends Screen
 
 const ShowupDuration:float = 1.0
-const StatusWidth:int = 150
-const TileSize:int = 32
+const TileSizes:Array = [32, 24, 16, 8]
 const BorderColor:Color = Color8(128, 128, 128, 140)
 
 var _timer:SceneTreeTimer = null
+var _tile_size:int
 
 
 func _enter_tree():
 	$Pause.connect("exit", self, "_on_pause_exit")
 
-	_create_grid_cells()
-
 	_layout(get_viewport_rect().size)
-	$Status.layout(Vector2(StatusWidth, 0))
+
+	_create_grid_cells()
 
 	_bind_model()
 
 
 func _ready():
+	$Status.set_model(model.score)
 	fade_out(ShowupDuration)
 
 
@@ -73,7 +73,7 @@ func _create_grid_cells() -> void:
 			color = Tetromino.Colors[cell]
 			parent = $Grid/Statics
 
-		var node:ColorRect = UtilsTetromino.DrawCell(idx % w, idx / w, TileSize, color)
+		var node:ColorRect = UtilsTetromino.DrawCell(idx % w, idx / w, _tile_size, color)
 
 		parent.add_child(node)
 		idx += 1
@@ -86,25 +86,43 @@ func _layout(size:Vector2) -> void:
 
 	var grid_size:Vector2 = model.get_size()
 
-	# grid
-	var grid_width:int = grid_size.x * TileSize
-	var game_width:int = grid_width + TileSize + status_node.get_size().x / 2
 	var viewport_width:int = size.x
-	var border_x:int = (viewport_width - game_width) / 2
-	grid_node.position.x = border_x
-
-	var grid_height:int = grid_size.y * TileSize
 	var viewport_height:int = size.y
-	grid_node.position.y = viewport_height - grid_height
-	
+
+	var grid_width:int = 0
+	var grid_height:int = 0
+	var game_width:int = 0
+	var border_x:int = 0
+	var border_y:int = 0
+
+	# given the available viewport' size,
+	# we need to find the correct tile size we can use
+	for tile_size in TileSizes:
+		_tile_size = tile_size
+
+		grid_width = grid_size.x * _tile_size
+		grid_height = grid_size.y * _tile_size
+
+		game_width = grid_width + _tile_size + status_node.get_min_width(_tile_size)
+
+		border_x = (viewport_width - game_width) / 2
+		border_y = viewport_height - grid_height - _tile_size
+
+		if border_x > 0 and border_y > 0:
+			break
+
+	grid_node.position.x = border_x
+	grid_node.position.y = border_y
+
 	# mask
-	var mask_height:int = Tetromino.MaxWidth * TileSize
+	var mask_height:int = Tetromino.MaxWidth * _tile_size
 	mask_node.rect_min_size = Vector2(grid_width, mask_height)
 	mask_node.rect_position.y = -mask_height
 
 	# status panel position
-	status_node.position.x = grid_node.position.x + grid_width + TileSize
+	status_node.position.x = grid_node.position.x + grid_width + _tile_size
 	status_node.position.y = grid_node.position.y
+	status_node.layout(_tile_size)
 
 
 func _bind_model() -> void:
@@ -146,13 +164,13 @@ func _on_tetromino_locked() -> void:
 
 func _on_lines_cleared(lines:Array) -> void:
 	# TODO: animation?
-	UtilsGrid.RemoveLines($Grid/Statics, lines, TileSize)
+	UtilsGrid.RemoveLines($Grid/Statics, lines, _tile_size)
 	model.apply_gravity()
 
 
 func _on_gravity_applied(moved:Dictionary) -> void:
 	# TODO: animation?
-	UtilsGrid.MoveLines($Grid/Statics, moved, TileSize)
+	UtilsGrid.MoveLines($Grid/Statics, moved, _tile_size)
 
 
 func _on_screen_resized() -> Vector2:
@@ -175,30 +193,25 @@ func _on_tetromino_spawned(t:Tetromino) -> void:
 
 	# draw the current tetromino
 	parent = $Grid/Current
-	UtilsTetromino.Draw(t, parent, TileSize)
-	parent.position = t.pos * TileSize
+	UtilsTetromino.Draw(t, parent, _tile_size)
+	parent.position = t.pos * _tile_size
 
 	# draw its ghost
 	parent = $Grid/Ghost
-	UtilsTetromino.DrawGhost(t, parent, TileSize)
+	UtilsTetromino.DrawGhost(t, parent, _tile_size)
 
 
 func _on_tetromino_moved(t:Tetromino) -> void:
-	$Grid/Current.position = t.pos * TileSize
+	$Grid/Current.position = t.pos * _tile_size
 
 
 func _on_tetromino_rotated(t:Tetromino) -> void:
-	UtilsTetromino.Rotate(t, $Grid/Current, TileSize)
-	UtilsTetromino.Rotate(t, $Grid/Ghost, TileSize)
+	UtilsTetromino.Rotate(t, $Grid/Current, _tile_size)
+	UtilsTetromino.Rotate(t, $Grid/Ghost, _tile_size)
 
 
 func _on_ghost_updated(pos:Vector2) -> void:
-	$Grid/Ghost.position = pos * TileSize
-
-
-func set_model(g:Game) -> void:
-	.set_model(g)
-	$Status.set_model(g.score)
+	$Grid/Ghost.position = pos * _tile_size
 
 
 func _on_fade_out_completed():
