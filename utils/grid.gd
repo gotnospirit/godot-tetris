@@ -1,6 +1,20 @@
 class_name UtilsGrid
 
 
+static func GetTileSizes() -> Array:
+	var dft_sizes:Array = [32, 24, 16, 8]
+
+	if not UtilsMobile.IsMobile():
+		return dft_sizes
+
+	var scale:int = UtilsMobile.GetScale()
+
+	for idx in range(dft_sizes.size()):
+		dft_sizes[idx] *= scale
+
+	return dft_sizes
+
+
 static func MoveInto(from:Node2D, to:Node2D) -> void:
 	for node in from.get_children():
 		# don't transfer invisible nodes

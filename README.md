@@ -33,6 +33,7 @@ An implementation of Tetris using Godot 3.4.4
   - [X] Increase speed
   - [X] Detect game over
 - [X] Dynamic layout & tile size
+- [X] Mobile HUD
 - [ ] Demo mode?
 - [ ] SFX?
 - [ ] Animation
@@ -52,3 +53,5 @@ An implementation of Tetris using Godot 3.4.4
 - Based on [Javidx9 youtube video](https://www.youtube.com/watch?v=8OK8_tHeCIA)
 - Original Tetris concept, design and program by [Alexey Pajitnov](https://fr.wikipedia.org/wiki/Alekse%C3%AF_Pajitnov)
 - [Tetris Guideline](https://harddrop.com/wiki/Tetris_Guideline) by [Henk Rogers](https://fr.wikipedia.org/wiki/Henk_Rogers)
+- HUD Arrow icon based on [Arrow left icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/arrow-left)
+- HUD Rotate icon based on [Rotate right icons created by Afian Rochmah Afif - Flaticon](https://www.flaticon.com/free-icons/rotate-right)

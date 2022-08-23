@@ -5,11 +5,15 @@ const FadeDuration:float = 1.0
 const FadeColor:Color = Color("#000000")
 
 var model:Game = null
+var is_mobile:bool = false
 
 
 func _enter_tree():
-	get_viewport().connect("size_changed", self, "_on_screen_resized")
-	Input.connect("joy_connection_changed", self, "_on_joy_connection_changed")
+	is_mobile = UtilsMobile.IsMobile()
+
+	if not is_mobile:
+		get_viewport().connect("size_changed", self, "_on_screen_resized")
+		Input.connect("joy_connection_changed", self, "_on_joy_connection_changed")
 
 
 func _ready():
@@ -18,8 +22,9 @@ func _ready():
 
 
 func _exit_tree():
-	get_viewport().disconnect("size_changed", self, "_on_screen_resized")
-	Input.disconnect("joy_connection_changed", self, "_on_joy_connection_changed")
+	if not is_mobile:
+		get_viewport().disconnect("size_changed", self, "_on_screen_resized")
+		Input.disconnect("joy_connection_changed", self, "_on_joy_connection_changed")
 
 
 func set_model(g:Game) -> void:

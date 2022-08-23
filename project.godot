@@ -55,6 +55,11 @@ _global_script_classes=[ {
 "path": "res://utils/input.gd"
 }, {
 "base": "Reference",
+"class": "UtilsMobile",
+"language": "GDScript",
+"path": "res://utils/mobile.gd"
+}, {
+"base": "Reference",
 "class": "UtilsTetromino",
 "language": "GDScript",
 "path": "res://utils/tetromino.gd"
@@ -69,6 +74,7 @@ _global_script_class_icons={
 "Tetromino": "",
 "UtilsGrid": "",
 "UtilsInput": "",
+"UtilsMobile": "",
 "UtilsTetromino": ""
 }
 
@@ -89,7 +95,9 @@ gdscript/warnings/integer_division=false
 window/size/width=1280
 window/size/height=720
 window/size/resizable=false
-window/handheld/orientation="sensor"
+window/handheld/orientation="portrait"
+window/stretch/mode="2d"
+window/stretch/aspect="expand"
 
 [input]
 
@@ -143,6 +151,10 @@ rotate_counterclockwise={
 , Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":16777238,"unicode":0,"echo":false,"script":null)
  ]
 }
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=false
 
 [physics]
 

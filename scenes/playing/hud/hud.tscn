@@ -1,0 +1,79 @@
+[gd_scene load_steps=16 format=2]
+
+[ext_resource path="res://scenes/playing/hud/off/arrow-up.png" type="Texture" id=1]
+[ext_resource path="res://scenes/playing/hud/off/arrow-down.png" type="Texture" id=2]
+[ext_resource path="res://scenes/playing/hud/off/arrow-left.png" type="Texture" id=3]
+[ext_resource path="res://scenes/playing/hud/off/rotate-ccw.png" type="Texture" id=4]
+[ext_resource path="res://scenes/playing/hud/off/rotate-cw.png" type="Texture" id=5]
+[ext_resource path="res://scenes/playing/hud/off/arrow-right.png" type="Texture" id=6]
+[ext_resource path="res://scenes/playing/hud/hud.gd" type="Script" id=7]
+[ext_resource path="res://scenes/playing/hud/on/arrow-down.png" type="Texture" id=8]
+[ext_resource path="res://scenes/playing/hud/on/arrow-up.png" type="Texture" id=9]
+[ext_resource path="res://scenes/playing/hud/on/arrow-left.png" type="Texture" id=10]
+[ext_resource path="res://scenes/playing/hud/on/arrow-right.png" type="Texture" id=11]
+[ext_resource path="res://scenes/playing/hud/on/rotate-cw.png" type="Texture" id=12]
+[ext_resource path="res://scenes/playing/hud/on/rotate-ccw.png" type="Texture" id=13]
+[ext_resource path="res://scenes/playing/hud/off/pause.png" type="Texture" id=14]
+[ext_resource path="res://scenes/playing/hud/on/pause.png" type="Texture" id=15]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource( 7 )
+
+[node name="Arrows" type="Node2D" parent="."]
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Up" type="TouchScreenButton" parent="Arrows"]
+pause_mode = 1
+position = Vector2( 64, 0 )
+normal = ExtResource( 1 )
+pressed = ExtResource( 9 )
+action = "sonic_drop"
+
+[node name="Down" type="TouchScreenButton" parent="Arrows"]
+pause_mode = 1
+position = Vector2( 64, 64 )
+normal = ExtResource( 2 )
+pressed = ExtResource( 8 )
+action = "soft_drop"
+
+[node name="Left" type="TouchScreenButton" parent="Arrows"]
+pause_mode = 1
+position = Vector2( 0, 64 )
+normal = ExtResource( 3 )
+pressed = ExtResource( 10 )
+action = "move_left"
+
+[node name="Right" type="TouchScreenButton" parent="Arrows"]
+pause_mode = 1
+position = Vector2( 128, 64 )
+normal = ExtResource( 6 )
+pressed = ExtResource( 11 )
+action = "move_right"
+
+[node name="Rotations" type="Node2D" parent="."]
+position = Vector2( 240, 0 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Pause" type="TouchScreenButton" parent="Rotations"]
+pause_mode = 2
+normal = ExtResource( 14 )
+pressed = ExtResource( 15 )
+action = "pause"
+
+[node name="Clockwise" type="TouchScreenButton" parent="Rotations"]
+pause_mode = 1
+position = Vector2( 64, 0 )
+normal = ExtResource( 5 )
+pressed = ExtResource( 12 )
+action = "rotate_clockwise"
+
+[node name="CounterCw" type="TouchScreenButton" parent="Rotations"]
+pause_mode = 1
+position = Vector2( 0, 64 )
+normal = ExtResource( 4 )
+pressed = ExtResource( 13 )
+action = "rotate_counterclockwise"

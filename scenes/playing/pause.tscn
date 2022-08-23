@@ -1,8 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scenes/screen.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scenes/playing/pause.gd" type="Script" id=2]
-
+[ext_resource path="res://fonts/arial.tres" type="DynamicFont" id=3]
 
 [node name="Node2D" instance=ExtResource( 1 )]
 script = ExtResource( 2 )
@@ -20,5 +20,6 @@ size_flags_vertical = 3
 margin_left = 11.0
 margin_right = 61.0
 margin_bottom = 14.0
+custom_fonts/font = ExtResource( 3 )
 text = "Paused!"
 align = 1

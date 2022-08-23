@@ -2,7 +2,6 @@ extends Screen
 
 const TetrisTheme = preload("res://music/Tetris_theme.ogg")
 const ShowupDuration:float = 1.0
-const TileSizes:Array = [32, 24, 16, 8]
 const BorderColor:Color = Color8(128, 128, 128, 140)
 const GameOverMusicFade:float = 1.5
 const PauseMusicFade:float = 0.75
@@ -13,6 +12,9 @@ var _tile_size:int
 
 func _enter_tree():
 	$Pause.connect("exit", self, "_on_pause_exit")
+
+	if is_mobile:
+		$HUD.show()
 
 	_layout(get_viewport_rect().size)
 
@@ -31,13 +33,14 @@ func _exit_tree():
 
 
 func _input(event):
-	if Input.is_action_just_released("pause"):
+	if event.is_action_released("pause"):
 		$Music.fade_out(PauseMusicFade)
+		$HUD.set_paused(true)
 		$Pause.show()
 		# will resume with _on_music_pause_finished
 		get_tree().paused = true
 
-	if Input.is_action_pressed("soft_drop"):
+	if event.is_action_pressed("soft_drop"):
 		var succeed:bool = model.soft_drop()
 
 		if not succeed and _timer and _timer.time_left > 0.0:
@@ -46,19 +49,19 @@ func _input(event):
 			# the collision faster
 			_timer.emit_signal("timeout")
 
-	if Input.is_action_just_released("sonic_drop"):
+	if event.is_action_released("sonic_drop"):
 		model.sonic_drop()
 
-	if Input.is_action_pressed("move_left"):
+	if event.is_action_pressed("move_left"):
 		model.move_left()
 
-	if Input.is_action_pressed("move_right"):
+	if event.is_action_pressed("move_right"):
 		model.move_right()
 
-	if Input.is_action_just_released("rotate_clockwise"):
+	if event.is_action_released("rotate_clockwise"):
 		model.rotate(true)
 
-	if Input.is_action_just_released("rotate_counterclockwise"):
+	if event.is_action_released("rotate_counterclockwise"):
 		model.rotate(false)
 
 
@@ -88,6 +91,7 @@ func _layout(size:Vector2) -> void:
 	var grid_node:Node2D = $Grid
 	var status_node:Node2D = $Status
 	var mask_node:ColorRect = $Grid/Mask
+	var hud_node:Node2D = $HUD
 
 	var grid_size:Vector2 = model.get_size()
 
@@ -97,24 +101,53 @@ func _layout(size:Vector2) -> void:
 	var grid_width:int = 0
 	var grid_height:int = 0
 	var game_width:int = 0
+	var game_height:int = 0
 	var border_x:int = 0
 	var border_y:int = 0
 
+	var layout_horizontal:bool = !is_mobile
+	var status_horizontal:bool = !layout_horizontal
+	var status_size:Vector2 = Vector2.ZERO
+
 	# given the available viewport' size,
 	# we need to find the correct tile size we can use
-	for tile_size in TileSizes:
+	for tile_size in UtilsGrid.GetTileSizes():
 		_tile_size = tile_size
 
 		grid_width = grid_size.x * _tile_size
 		grid_height = grid_size.y * _tile_size
 
-		game_width = grid_width + _tile_size + status_node.get_min_width(_tile_size)
+		game_width = grid_width
+		game_height = grid_height
+
+		status_size = status_node.get_size(tile_size, status_horizontal)
+
+		if layout_horizontal:
+			game_width += _tile_size + status_size.x
+		else:
+			game_height += _tile_size + status_size.y
 
 		border_x = (viewport_width - game_width) / 2
-		border_y = viewport_height - grid_height - _tile_size
+		border_y = viewport_height - game_height
 
 		if border_x > 0 and border_y > 0:
 			break
+
+	var grid_margin:int = _tile_size / 3
+
+	# mobile hud
+	if is_mobile:
+		hud_node._layout(game_width)
+
+		# we get its size after layout because
+		# of the applied scale factor
+		var hud_height:int = hud_node.get_height()
+
+		hud_node.position.x = border_x
+		hud_node.position.y = viewport_height - hud_height - _tile_size / 4
+		border_y = viewport_height - grid_height - hud_height - grid_margin
+	else:
+		border_y -= _tile_size
 
 	grid_node.position.x = border_x
 	grid_node.position.y = border_y
@@ -125,9 +158,14 @@ func _layout(size:Vector2) -> void:
 	mask_node.rect_position.y = -mask_height
 
 	# status panel position
-	status_node.position.x = grid_node.position.x + grid_width + _tile_size
-	status_node.position.y = grid_node.position.y
-	status_node.layout(_tile_size)
+	if layout_horizontal:
+		status_node.position.x = grid_node.position.x + grid_width + _tile_size
+		status_node.position.y = grid_node.position.y
+	else:
+		status_node.position.x = grid_node.position.x
+		status_node.position.y = grid_node.position.y - status_size.y - grid_margin
+
+	status_node.layout(game_width, status_horizontal)
 
 
 func _bind_model() -> void:
@@ -190,6 +228,7 @@ func _on_pause_exit() -> void:
 
 
 func _on_music_pause_finished() -> void:
+	$HUD.set_paused(false)
 	get_tree().paused = false
 
 

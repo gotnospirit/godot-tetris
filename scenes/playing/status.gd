@@ -1,9 +1,8 @@
 extends Node2D
 
-const FramePadding:int = 10
-
 var _model:Scoring = null
-var _tile_size:int = 32
+var _tile_size:int = -1
+var _size:Vector2 = Vector2.ZERO
 
 
 func _exit_tree():
@@ -29,36 +28,74 @@ func set_next(t:Tetromino) -> void:
 
 	# center it
 	parent.position.x = ($Frame.rect_size.x - o.width * _tile_size) / 2
-	parent.position.y = (Tetromino.MaxWidth - o.height) * _tile_size / 2 + FramePadding
+	parent.position.y = ($Frame.rect_size.y - o.height * _tile_size) / 2
 
 
-func get_min_width(tile_size:int) -> int:
-	return Tetromino.MaxWidth * tile_size + FramePadding * 2
+func get_size(tile_size:int, layout_horizontal:bool) -> Vector2:
+	if _tile_size == tile_size:
+		return _size
 
+	var preview_width:int = Tetromino.MaxWidth * tile_size
+	var frame_padding:int = UtilsMobile.GetFramePadding()
 
-func layout(tile_size:int) -> void:
+	var score_width:int = $Score.get_width()
+	var level_width:int = $Level.get_width()
+	var lines_width:int = $Lines.get_width()
+
+	var status_line_height:int = $Score.get_height()
+
+	if layout_horizontal:
+		_size.x = preview_width + frame_padding * 3 + int(max(score_width, max(level_width, lines_width)))
+		_size.y = preview_width + frame_padding * 2
+	else:
+		_size.x = int(max(preview_width, max(score_width, max(level_width, lines_width)))) + frame_padding * 2
+		_size.y = preview_width + frame_padding * 2 + 3 * (status_line_height + frame_padding)
+
 	_tile_size = tile_size
 
-	# next tetromino preview
-	var preview_width:int = Tetromino.MaxWidth * _tile_size
-	var preview_height:int = Tetromino.MaxWidth * _tile_size
+	return _size
 
-	$Frame/Preview.position.x = FramePadding
-	$Frame/Preview.position.y = FramePadding
+
+func layout(width:int, layout_horizontal:bool) -> void:
+	var size:Vector2 = get_size(_tile_size, layout_horizontal)
+	var frame_padding:int = UtilsMobile.GetFramePadding()
+
+	# next tetromino preview
+	var preview_size:int = Tetromino.MaxWidth * _tile_size
+
+	$Frame/Preview.position.x = frame_padding
+	$Frame/Preview.position.y = frame_padding
 
 	# frame size
-	var frame_width:int = preview_width + FramePadding * 2
-	var frame_height:int = preview_height + FramePadding * 2
+	var frame_size:int = preview_size + frame_padding * 2
 
-	$Frame.rect_size = Vector2(frame_width, frame_height)
+	$Frame.rect_size = Vector2(frame_size, frame_size)
+	UtilsMobile.UpdatePanel($Frame)
 
-	$Score.rect_size.x = frame_width
-	$Level.rect_size.x = frame_width
-	$Lines.rect_size.x = frame_width
+	if layout_horizontal:
+		var max_width:int = int(max($Score.get_width(), max($Level.get_width(), $Lines.get_width())))
 
-	$Score.rect_position.y = FramePadding * 3 + preview_height
-	$Level.rect_position.y = $Score.rect_position.y + FramePadding + $Score.rect_size.y
-	$Lines.rect_position.y = $Level.rect_position.y + FramePadding + $Level.rect_size.y
+		$Score.rect_position.x = width - max_width
+		$Level.rect_position.x = width - max_width
+		$Lines.rect_position.x = width - max_width
+
+		$Score.rect_size.x = max_width
+		$Level.rect_size.x = max_width
+		$Lines.rect_size.x = max_width
+	else:
+		$Score.rect_size.x = size.x
+		$Level.rect_size.x = size.x
+		$Lines.rect_size.x = size.x
+
+		$Score.rect_position.y = frame_size
+
+	$Score.rect_size.y = $Score.get_height()
+	$Level.rect_size.y = $Level.get_height()
+	$Lines.rect_size.y = $Lines.get_height()
+
+	$Score.rect_position.y += frame_padding
+	$Level.rect_position.y = $Score.rect_position.y + frame_padding + $Score.rect_size.y
+	$Lines.rect_position.y = $Level.rect_position.y + frame_padding + $Level.rect_size.y
 
 
 func _bind_model() -> void:

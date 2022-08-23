@@ -1,6 +1,7 @@
 extends Screen
 
 const MenuText:String = "Press [%s] to start a new game"
+const TouchScreenText:String = "Tap to start a new game"
 
 
 func _enter_tree():
@@ -8,12 +9,15 @@ func _enter_tree():
 
 
 func _ready():
-	_update_label()
+	if is_mobile:
+		_update_label_for_mobile()
+	else:
+		_update_label()
 	fade_out()
 
 
-func _process(_delta):
-	if Input.is_action_just_released("start_game"):
+func _input(event):
+	if event.is_action_released("start_game") or event is InputEventScreenTouch:
 		fade_in()
 
 
@@ -32,6 +36,10 @@ func _update_label() -> void:
 	var key_names:PoolStringArray = UtilsInput.GetKeyNames("start_game")
 	var key_str:String = "n/a" if key_names.empty() else key_names.join(" / ")
 	$CenterContainer/Label.text = MenuText % key_str
+
+
+func _update_label_for_mobile() -> void:
+	$CenterContainer/Label.text = TouchScreenText
 
 
 func _on_joy_connection_changed(device:int, connected:bool):

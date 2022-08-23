@@ -16,8 +16,8 @@ func show():
 	fade_in(toggle_duration, toggle_color)
 
 
-func _input(_event):
-	if Input.is_action_just_released("pause"):
+func _input(event):
+	if event.is_action_released("pause"):
 		$CenterContainer.hide()
 		fade_out(toggle_duration, toggle_color)
 
